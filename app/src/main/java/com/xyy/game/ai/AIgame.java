@@ -9,6 +9,9 @@ import com.xyy.game.framework.impl.AndroidGame;
  * Created by ${XYY} on ${2016/5/27}.
  */
 public class AIGame extends AndroidGame {
+
+    /////////////////////Test
+
     @Override
     public Screen getStartScreen() {
         return new StartUpScreen(this);
