@@ -8,7 +8,7 @@ import com.xyy.game.framework.impl.AndroidGame;
  * 主Activity入口
  * Created by ${XYY} on ${2016/5/27}.
  */
-public class AIgame extends AndroidGame {
+public class AIGame extends AndroidGame {
     @Override
     public Screen getStartScreen() {
         return new StartUpScreen(this);

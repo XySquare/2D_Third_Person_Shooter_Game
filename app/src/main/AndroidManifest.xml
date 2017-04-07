@@ -8,8 +8,8 @@
         android:name=".framework.BaseApplication"
         android:hardwareAccelerated="true">
         <!--设置DungeonRPG为主活动-->
-        <activity android:name=".ai.AIgame" android:screenOrientation="sensorLandscape"
-            android:configChanges="screenSize|keyboard|keyboardHidden|orientation" >
+        <activity android:name=".ai.AIGame" android:screenOrientation="sensorLandscape"
+                  android:configChanges="screenSize|keyboard|keyboardHidden|orientation" >
             <!--设置Activity为重力感应横屏-->
             <!--API13以后，需要在 android:configChanges 的参数里面加一个screenSize,-->
             <!--以确保锁屏时Activity不会被销毁重建-->
