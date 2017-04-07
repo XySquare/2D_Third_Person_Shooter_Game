@@ -75,5 +75,7 @@ public class Assets {
     //HP
     public static Pixmap aid;
 
+    public static Pixmap test;
+
     //public static BitmapRegionDecoder map0_Bg;
 }
