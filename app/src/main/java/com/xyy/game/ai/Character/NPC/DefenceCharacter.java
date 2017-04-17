@@ -117,6 +117,8 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
 
     private Defended mDefended;
 
+    private ArrayList<Character> hostileList;
+
     public DefenceCharacter(final Stage stage) {
         super(stage);
         this.r = 85;
@@ -576,6 +578,8 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
         //Log.e(getName(),"x/y = "+x+" / "+y);
         end = environment.getPlayerIndex();
 
+        hostileList = environment.getHostileList();
+
         //TODO: 玩家的半径
         final int playerR = 65;
 
@@ -638,7 +642,7 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
 
         if (defended() == null) {
 
-            Character[] hostiles = stage.sortHostilesByDistance(this.x, this.y);
+            Character[] hostiles = sortHostilesByDistance(this.x, this.y);
             Character hostile = null;
 
             for (int i = 1; i < hostiles.length; i++) {
@@ -877,5 +881,72 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
             output[0] = 0;
             output[1] = 0;
         }
+    }
+
+    /**
+     * 求直角坐标系中任意两点的距离
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     * @return
+     */
+    private static float distancePoint2Point(float x1, float y1, float x2, float y2) {
+        return (float)Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+    }
+
+    /**
+     * 根据数组A的元素大小从小到大排序A的index，返回index数组
+     * @param A
+     * @return
+     */
+    private static int[] sortIndexesByValues(int[] A){
+
+        int[] ATemp = new int[A.length];
+        for (int i = 0; i < A.length; i++) {
+            ATemp[i] = A[i];
+        }
+
+        int[] arr = new int[ATemp.length];
+        float min;
+        for(int i = 0; i < ATemp.length; i ++){
+            min = ATemp[0];
+
+            int j = 0;
+            int k = j;
+            for(; j < ATemp.length; j ++){
+                if(ATemp[j] < min){
+                    min = ATemp[j];
+                    k = j;
+                }
+            }
+
+            arr[i] = k;
+            ATemp[k] = 65535;
+        }
+        return arr;
+    }
+
+    /**
+     * 根据到点（x，y）的距离排序角色
+     * @param x
+     * @param y
+     * @return
+     */
+    public Character[] sortHostilesByDistance(float x, float y) {
+        int length = hostileList.size();
+        Character[] hostiles = new Character[length];
+        int[] distances = new int[length];
+
+        for (int i = 0; i < length; i++) {
+            distances[i] = (int)distancePoint2Point(hostileList.get(i).getX(), hostileList.get(i).getY(), x, y);
+        }
+
+        int[] indexes = sortIndexesByValues(distances);
+
+        for (int i = 0; i < length; i++) {
+            hostiles[i] = hostileList.get(indexes[i]);
+        }
+        return hostiles;
     }
 }

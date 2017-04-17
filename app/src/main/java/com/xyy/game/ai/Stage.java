@@ -150,6 +150,7 @@ public class Stage {
         //获取环境
         environment = world.getEnvironment();
         environment.addPlayerAtkList(playerAtkList);
+        environment.setHostileList(hostileList);
 
         //获取地图边
         //lines = world.getLines();
@@ -604,5 +605,4 @@ public class Stage {
             hostileListTemp.get(i).setHp(0);
         Log.i("Stage", "Disposed.");
     }
-
 }

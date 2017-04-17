@@ -1,6 +1,7 @@
 package com.xyy.game.ai;
 
 import com.xyy.game.ai.Attack.Attack;
+import com.xyy.game.ai.Character.Character;
 import com.xyy.game.util.Line;
 
 import java.util.ArrayList;
@@ -32,6 +33,11 @@ public class Environment {
      * 储存“玩家”产生的攻击对象的线性表
      */
     public ArrayList<Attack> playerAtkList;
+
+    /**
+     * 储存“敌对”角色的线性表
+     */
+    private ArrayList<Character> hostileList;
 
     /**
      * 地图边集（分块）
@@ -146,5 +152,13 @@ public class Environment {
 
     public int index2Y(int index){
         return (index/mapBlockXNum)*mapBlockWidth + mapBlockWidth/2;
+    }
+
+    public ArrayList<Character> getHostileList() {
+        return hostileList;
+    }
+
+    public void setHostileList(ArrayList<Character> hostileList) {
+        this.hostileList = hostileList;
     }
 }
