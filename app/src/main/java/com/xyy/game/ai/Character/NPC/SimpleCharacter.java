@@ -97,7 +97,7 @@ public final class SimpleCharacter extends Character implements NPC{
 
     private boolean canBeDefended = true;
 
-    private int safeDistance = 700;
+    private static final int safeDistance = 700;
 
     public SimpleCharacter(final Stage stage) {
         super(stage);

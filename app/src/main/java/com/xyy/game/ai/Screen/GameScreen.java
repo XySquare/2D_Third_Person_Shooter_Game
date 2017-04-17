@@ -1,5 +1,6 @@
 package com.xyy.game.ai.Screen;
 
+import com.xyy.game.ai.Character.NPC.RootCharacter;
 import com.xyy.game.ai.GameDataManager;
 import com.xyy.game.ai.GameState;
 import com.xyy.game.ai.GameStateManager;

@@ -18,6 +18,7 @@ public final class NPCProducer extends Character implements NPC {
      * 基因池
      */
     private static GenPool genPool = null;
+    private static GenPool genPool_Defence = null;
 
     private int childrenCounter;
 
@@ -31,6 +32,7 @@ public final class NPCProducer extends Character implements NPC {
 
         //初始化基因池
         genPool = GameDataManager.getGenPool("Data.dat");
+        genPool_Defence = GameDataManager.getGenPool("data_defence.dat");
 
     //    mNeuralNet = new NeuralNet(5, 4, 6);
     //    mNeuralNet.Train(DefenceCharacter.sData);
@@ -109,8 +111,8 @@ public final class NPCProducer extends Character implements NPC {
             } else {
                 DefenceCharacter defenceCharacter = new DefenceCharacter(stage);
                 defenceCharacter.initialize(this, "DefenceCharacter" + childrenCounter, (int) x, (int) y);
-       //         defenceCharacter.putWeights(mNeuralNet.GetWeights());
-                defenceCharacter.putWeights(weights);
+                defenceCharacter.putWeights(genPool_Defence.get());
+       //         defenceCharacter.putWeights(weights);
                 stage.addHostile(defenceCharacter);
                 stage.addToTrackList(defenceCharacter);
             }

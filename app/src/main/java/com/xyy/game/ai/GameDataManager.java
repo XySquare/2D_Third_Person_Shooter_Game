@@ -8,6 +8,7 @@ import com.xyy.game.framework.FileIO;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 
 /**
@@ -104,6 +105,39 @@ public class GameDataManager {
         }
 
         return data;
+    }
+
+    public static void writeData(FileIO files, String fileName, double[][] data){
+
+        DataOutputStream out = null;
+        try {
+
+            out = new DataOutputStream(new BufferedOutputStream(files.writeExternalStorage(fileName)));
+            // 数组长度
+            short len = (short)(data.length);
+            out.writeShort(len);
+
+            // 对每个子数组...
+            for(short i=0;i<len;i++){
+                // 子数组长度
+                short l = (short)(data[i].length);
+                out.writeShort(l);
+
+                double[] sub_data = data[i];
+                //子数组数据
+                for(short j=0;j<l;j++){
+                    out.writeDouble(sub_data[j]);
+                }
+            }
+            // 完毕
+        } catch (IOException ignored) {
+        } finally {
+            try {
+                if (out != null)
+                    out.close();
+            } catch (IOException ignored) {
+            }
+        }
     }
 
     private static double[][] readDataGeneratedFromUser(FileIO fileIO, String fileName){

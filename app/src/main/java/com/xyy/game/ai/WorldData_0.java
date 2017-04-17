@@ -79,7 +79,7 @@ public final class WorldData_0 implements WorldData {
 
     @Override
     public String[] getDataToLoad() {
-        return new String[]{"Data.dat"};
+        return new String[]{"Data.dat", "data_defence.dat"};
     }
 
     @Override
