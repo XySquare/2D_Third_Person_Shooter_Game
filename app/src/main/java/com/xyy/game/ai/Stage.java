@@ -1,19 +1,21 @@
 package com.xyy.game.ai;
 
-import android.graphics.Bitmap;
 import android.util.Log;
 
 import com.xyy.game.ai.Attack.Attack;
-import com.xyy.game.ai.Attack.GeneralLineAttack;
 import com.xyy.game.ai.Character.NPC.NPC;
 import com.xyy.game.ai.Effect.Effect;
 import com.xyy.game.ai.Character.*;
 import com.xyy.game.ai.Character.Character;
 import com.xyy.game.ai.Effect.PlayerShowEffect;
+import com.xyy.game.ai.Weapon.IMIDesertEagle;
+import com.xyy.game.ai.Weapon.M16A4;
+import com.xyy.game.ai.Weapon.Weapon;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Pixmap;
 import com.xyy.game.util.IntArrayList;
 import com.xyy.game.util.Line;
+import com.xyy.game.util.iPoint;
 
 import java.util.ArrayList;
 
@@ -91,11 +93,6 @@ public class Stage {
     private Environment environment;
 
     /**
-     * 玩家攻击对象获取接口
-     */
-    private AttackGenerator[] attackGeneratorsList;
-
-    /**
      * 根角色
      */
     private Character rootCharacter;
@@ -115,6 +112,27 @@ public class Stage {
     private GameStateManager gameStateManager;
 
     //private BackGroundLoader backGroundLoader;
+
+
+    /**
+     * 玩家所持有的武器
+     */
+    private Weapon[] mWeapons;
+
+    /**
+     * 玩家当前所使用的武器
+     */
+    private int mCurrentWeaponIndex;
+
+    /**
+     * 当前武器是否在冷却（true = 正在冷却，不可使用）
+     */
+    private boolean mIsInCD;
+
+    /**
+     * 武器冷却时间计时器
+     */
+    private float mAtkDelayTimer;
 
     /**
      * Stage在GameScreen中被实例化，
@@ -140,8 +158,8 @@ public class Stage {
         player = new Player(this);
 
         //设置玩家初始坐标
-        int[] startPoint = world.getPlayerStartPoint();
-        player.initialize((NPC) rootCharacter, "Player", startPoint[0], startPoint[1]);
+        iPoint startPoint = world.getPlayerStartPoint();
+        player.initialize((NPC) rootCharacter, "Player", startPoint.x, startPoint.y);
 
         //添加玩家出现特效
         Effect e = new PlayerShowEffect();
@@ -151,25 +169,10 @@ public class Stage {
         //向玩家添加一个无法移动的BUFF，时长与特效时长相同
         player.addBuff(Buff.UNMOVEABLE);
 
-        final Stage stage = this;
-        //新建玩家攻击接口
-        attackGeneratorsList = new AttackGenerator[]{
-                new AttackGenerator() {
-                    @Override
-                    public void generateAttack(float x, float y, float dx, float dy, int atk) {
-                        if (player.accessEnergy(-1)) {
-                            GeneralLineAttack attackObject = new GeneralLineAttack(stage);
-                            attackObject.initialize(player, x, y, dx, dy, 700, atk, 1, 30, 0xFF66CCFF);
-                            addAtkPlayer(attackObject);
-                        }else{
-                            player.accessHp(-1);
-                            GeneralLineAttack attackObject = new GeneralLineAttack(stage);
-                            attackObject.initialize(player, x, y, dx, dy, 700, atk, 1, 30, 0xFF66CCFF);
-                            addAtkPlayer(attackObject);
-                        }
-                    }
-                }
-        };
+        //玩家武器
+        mWeapons = UserDate.sEquippedWeapons;
+
+        setCurrentWeaponIndex(0);
 
         //int indexX = (int)(player.getX()/BLOCK_WIDTH) - 2;
         //int indexY = (int)(player.getY()/BLOCK_HEIGHT) - 2;
@@ -185,6 +188,15 @@ public class Stage {
     public void update(float deltaTime) {
         //更新玩家
         player.update(deltaTime, environment);
+
+        if (mIsInCD) {
+            mAtkDelayTimer += deltaTime;
+            float delay = mWeapons[mCurrentWeaponIndex].getAtkDelay();
+            if (mAtkDelayTimer >= delay) {
+                mAtkDelayTimer -= delay;
+                mIsInCD = false;
+            }
+        }
 
         //将上一帧新增的攻击对象/角色添加到舞台，随后清空缓存
         playerAtkList.addAll(playerAtkListTemp);
@@ -345,7 +357,6 @@ public class Stage {
         g.fill(0xFF000000);
 
 
-
         /**
          * 绘制地图
          */
@@ -362,7 +373,7 @@ public class Stage {
                 }
             }
         }*/
-        g.drawPixmap(mapBackGround, -540-offsetX, -360-offsetY);
+        g.drawPixmap(mapBackGround, -540 - offsetX, -360 - offsetY);
         //g.drawPixmap(Assets.map0_Bg,0,0,(int)(123-90+offsetX), (int) (271+30+offsetY),1280,720);
         /*for (Line line : lines) {
             g.drawLine(line.getPoint1().x - offsetX,
@@ -413,7 +424,7 @@ public class Stage {
             effectList.get(i).present(g, offsetX, offsetY);
         }
 
-        rootCharacter.present(g,offsetX,offsetY);
+        rootCharacter.present(g, offsetX, offsetY);
 
         /**
          * 调试代码
@@ -430,7 +441,41 @@ public class Stage {
      * 玩家执行攻击
      */
     public void PlayerAttack(float dx, float dy) {
-        attackGeneratorsList[0].generateAttack(player.getX(), player.getY(), dx, dy, player.getAtk());
+        if (!mIsInCD) {
+            mWeapons[mCurrentWeaponIndex].attack(this, player, dx, dy);
+            mIsInCD = true;
+        }
+    }
+
+    /**
+     * 切换武器
+     */
+    private void setCurrentWeaponIndex(int index) {
+        index = (index + mWeapons.length) % mWeapons.length;
+        if (index == mCurrentWeaponIndex) return;
+        mCurrentWeaponIndex = index;
+        mIsInCD = false;
+        mAtkDelayTimer = 0;
+    }
+
+    /**
+     * 切换至下一个武器
+     */
+    public Weapon nextWeapon() {
+        setCurrentWeaponIndex(++mCurrentWeaponIndex);
+        return mWeapons[mCurrentWeaponIndex];
+    }
+
+    /**
+     * 切换至上一个武器
+     */
+    public Weapon prevWeapon() {
+        setCurrentWeaponIndex(--mCurrentWeaponIndex);
+        return mWeapons[mCurrentWeaponIndex];
+    }
+
+    public Weapon getCurrentWeapon() {
+        return mWeapons[mCurrentWeaponIndex];
     }
 
     /**
@@ -467,7 +512,7 @@ public class Stage {
      * @param gameObject 被添加到追踪列表的对象
      */
     public void addToTrackList(GameObject gameObject) {
-        addToTrackList(gameObject,0);
+        addToTrackList(gameObject, 0);
     }
 
     /**
@@ -517,11 +562,12 @@ public class Stage {
 
     /**
      * 玩家得分
+     *
      * @param score 正为增，负为减
      */
-    public void accessScore(int score){
+    public void accessScore(int score) {
         int s = this.score;
-        if(s+score<0)
+        if (s + score < 0)
             s = 0;
         else
             s += score;
@@ -556,7 +602,7 @@ public class Stage {
         len = hostileListTemp.size();
         for (int i = 0; i < len; i++)
             hostileListTemp.get(i).setHp(0);
-        Log.i("Stage","Disposed.");
+        Log.i("Stage", "Disposed.");
     }
 
 }

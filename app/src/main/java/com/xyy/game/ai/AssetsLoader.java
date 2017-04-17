@@ -39,6 +39,14 @@ public class AssetsLoader implements Runnable {
         Assets.setting = g.newPixmap("setting.png", Graphics.PixmapFormat.ARGB4444);
         Assets.ai = g.newPixmap("title.png", Graphics.PixmapFormat.ARGB4444);
         Assets.back= g.newPixmap("back.png", Graphics.PixmapFormat.RGB565);
+        Assets.main_menu_top_bar = g.newPixmap("main_menu_top_bar.png", Graphics.PixmapFormat.RGB565);
+        Assets.list_item_weapon = g.newPixmap("list_item_weapon.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.list_item_weapon_bronze = g.newPixmap("list_item_weapon_bronze.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.list_item_weapon_silver = g.newPixmap("list_item_weapon_silver.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.list_item_weapon_gold = g.newPixmap("list_item_weapon_gold.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.button_details = g.newPixmap("button_details.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.button_tab = g.newPixmap("button_tab.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.background = g.newPixmap("background.png", Graphics.PixmapFormat.RGB565);
         state = MAINMENU_LOADED;
 
         Pixmap m1 = g.newPixmap("option1.png", Graphics.PixmapFormat.RGB565);
@@ -78,6 +86,8 @@ public class AssetsLoader implements Runnable {
         Assets.aid= g.newPixmap("aid.png", Graphics.PixmapFormat.ARGB4444);
         Assets.numbers5_26_2 = g.newPixmap("numbers5_26_2.png", Graphics.PixmapFormat.ARGB4444);
         //Assets.map0_Bg = g.newBigPixmap("map00_bg.png");
+        Assets.btArrowLeft = g.newPixmap("arrowBt.png", Graphics.PixmapFormat.ARGB4444, 0, 0, 30,60);
+        Assets.btArrowRight = g.newPixmap("arrowBt.png", Graphics.PixmapFormat.ARGB4444, 30, 0, 30,60);
         state = GAME_LOADED;
 
         Log.i("AssetsLoader","All Assets Loaded!");

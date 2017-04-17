@@ -78,21 +78,12 @@ public final class WorldData_0 implements WorldData {
     }
 
     @Override
-    public Buff[] getBuffList() {
-        return new Buff[]{
-                new Buff(Buff.ATK_UP, new char[]{Character.ATK}, new int[]{1}, new float[]{0}, 5, 5, true, 3, "攻击提升"),
-                new Buff(Buff.SPEED_UP, new char[]{Character.V}, new int[]{0}, new float[]{0.5f}, 5, 1, true, 14, "速度提升"),
-                new Buff(Buff.UNMOVEABLE, new char[]{Character.V}, new int[]{0}, new float[]{-1}, 2, 1, false, 13, "等待"),
-        };
-    }
-
-    @Override
     public String[] getDataToLoad() {
         return new String[]{"Data.dat"};
     }
 
     @Override
-    public int[] getPlayerStartPoint() {
-        return new int[]{2825,2706};
+    public iPoint getPlayerStartPoint() {
+        return new iPoint(2825,2706);
     }
 }

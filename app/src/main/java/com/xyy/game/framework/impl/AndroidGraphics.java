@@ -23,6 +23,7 @@ import java.io.InputStream;
 
 /**
  * AndroidGraphics类实现了Graphics接口
+ *
  * @see com.xyy.game.framework.Graphics
  * Created by ${XYY} on ${2016/3/5}.
  */
@@ -38,7 +39,7 @@ public final class AndroidGraphics implements Graphics {
     Typeface font;
     int drawFilter;
 
-    BitmapFactory.Options bigPixmapOptions = new BitmapFactory.Options();
+    //BitmapFactory.Options bigPixmapOptions = new BitmapFactory.Options();
 
 
     public AndroidGraphics(AssetManager assets, Bitmap frameBuffer) {
@@ -48,7 +49,7 @@ public final class AndroidGraphics implements Graphics {
         this.paint = new Paint();
         //载入字体
         //this.font = Typeface.createFromAsset(assets, "msyh.ttc");
-        this.font = Typeface.create("DroidSansFallback",Typeface.NORMAL);
+        this.font = Typeface.create("DroidSansFallback", Typeface.NORMAL);
         //设置文本字体与对齐方式
         paint.setTypeface(font);
         paint.setTextAlign(Paint.Align.LEFT);
@@ -56,13 +57,13 @@ public final class AndroidGraphics implements Graphics {
         //this.canvas.setDrawFilter(new PaintFlagsDrawFilter(0, Paint.ANTI_ALIAS_FLAG|Paint.FILTER_BITMAP_FLAG));
         drawFilter = 0;
 
-        bigPixmapOptions.inPreferredConfig = Bitmap.Config.RGB_565;
+        //bigPixmapOptions.inPreferredConfig = Bitmap.Config.RGB_565;
 
     }
 
     @Override
-    public void setAntiAlias(boolean enable){
-        if(enable)
+    public void setAntiAlias(boolean enable) {
+        if (enable)
             drawFilter |= Paint.ANTI_ALIAS_FLAG;
         else
             drawFilter &= ~Paint.ANTI_ALIAS_FLAG;
@@ -70,8 +71,8 @@ public final class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void setFilterBitmap(boolean enable){
-        if(enable)
+    public void setFilterBitmap(boolean enable) {
+        if (enable)
             drawFilter |= Paint.FILTER_BITMAP_FLAG;
         else
             drawFilter &= ~Paint.FILTER_BITMAP_FLAG;
@@ -97,7 +98,7 @@ public final class AndroidGraphics implements Graphics {
         try {
             //加载位图
             in = assets.open(fileName);
-            bitmap = BitmapFactory.decodeStream(in,null,options);
+            bitmap = BitmapFactory.decodeStream(in, null, options);
             if (bitmap == null)
                 throw new RuntimeException("Couldn't load bitmap from asset '"
                         + fileName + "'");
@@ -114,13 +115,63 @@ public final class AndroidGraphics implements Graphics {
         }
 
         //重新检测图片格式
-        //bitmap不会为NULL，在加载时就会抛出异常
         if (bitmap.getConfig() == Bitmap.Config.RGB_565)
             format = PixmapFormat.RGB565;
         else if (bitmap.getConfig() == Bitmap.Config.ARGB_4444)
             format = PixmapFormat.ARGB4444;
         else
-                format = PixmapFormat.ARGB8888;
+            format = PixmapFormat.ARGB8888;
+
+        return new AndroidPixmap(bitmap, format);
+    }
+
+    public Pixmap newPixmap(String fileName, PixmapFormat format, int srcX, int srcY, int srcWidth, int srcHeight) {
+        Bitmap.Config config;
+        //将PixmapFormat转换为Bitmap.Config常量
+        if (format == PixmapFormat.RGB565)
+            config = Bitmap.Config.RGB_565;
+        else if (format == PixmapFormat.ARGB4444)
+            config = Bitmap.Config.ARGB_4444;
+        else
+            config = Bitmap.Config.ARGB_8888;
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = config;
+
+        srcRect.left = srcX;
+        srcRect.top = srcY;
+        srcRect.right = srcX + srcWidth;
+        srcRect.bottom = srcY + srcHeight;
+
+        InputStream in = null;
+        Bitmap bitmap = null;
+        try {
+            //加载位图
+            in = assets.open(fileName);
+            BitmapRegionDecoder bitmapRegionDecoder = BitmapRegionDecoder.newInstance(in, true);
+            bitmap = bitmapRegionDecoder.decodeRegion(srcRect, options);
+            if (bitmap == null)
+                throw new RuntimeException("Couldn't load bitmap from asset '"
+                        + fileName + "'");
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't load bitmap from asset '"
+                    + fileName + "'");
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+
+        //重新检测图片格式
+        if (bitmap.getConfig() == Bitmap.Config.RGB_565)
+            format = PixmapFormat.RGB565;
+        else if (bitmap.getConfig() == Bitmap.Config.ARGB_4444)
+            format = PixmapFormat.ARGB4444;
+        else
+            format = PixmapFormat.ARGB8888;
 
         return new AndroidPixmap(bitmap, format);
     }
@@ -166,8 +217,8 @@ public final class AndroidGraphics implements Graphics {
 
     @Override
     public void drawCircle(float x, float y, float r, Shader shader, float scale) {
-        matrix.setTranslate(x,y);
-        matrix.postScale(scale, scale,x,y);
+        matrix.setTranslate(x, y);
+        matrix.postScale(scale, scale, x, y);
         shader.setLocalMatrix(matrix);
         paint.setShader(shader);
         paint.setStyle(Paint.Style.FILL);
@@ -176,8 +227,8 @@ public final class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawRing(float x, float y, float r, float startAngle, float sweepAngle, int color, int width){
-        float offset = (r + 1 + width/2);
+    public void drawRing(float x, float y, float r, float startAngle, float sweepAngle, int color, int width) {
+        float offset = (r + 1 + width / 2);
         dstRect.left = x - offset;
         dstRect.top = y - offset;
         dstRect.right = x + offset;
@@ -194,18 +245,18 @@ public final class AndroidGraphics implements Graphics {
 
     @Override
     public void drawPixmap(Pixmap pixmap, int x, int y, int srcX, int srcY, int srcWidth, int srcHeight) {
-            srcRect.left = srcX;
-            srcRect.top = srcY;
-            srcRect.right = srcX + srcWidth;
-            srcRect.bottom = srcY + srcHeight;
+        srcRect.left = srcX;
+        srcRect.top = srcY;
+        srcRect.right = srcX + srcWidth;
+        srcRect.bottom = srcY + srcHeight;
 
-            dstRect.left = x;
-            dstRect.top = y;
-            dstRect.right = x + srcWidth;
-            dstRect.bottom = y + srcHeight;
+        dstRect.left = x;
+        dstRect.top = y;
+        dstRect.right = x + srcWidth;
+        dstRect.bottom = y + srcHeight;
 
-            canvas.drawBitmap(((AndroidPixmap) pixmap).bitmap, srcRect, dstRect,
-                    null);
+        canvas.drawBitmap(((AndroidPixmap) pixmap).bitmap, srcRect, dstRect,
+                null);
     }
 
     @Override
@@ -230,14 +281,14 @@ public final class AndroidGraphics implements Graphics {
 
     @Override
     public void drawPixmap(Pixmap pixmap, float x, float y) {
-        canvas.drawBitmap(((AndroidPixmap)pixmap).bitmap, x, y, null);
+        canvas.drawBitmap(((AndroidPixmap) pixmap).bitmap, x, y, null);
     }
 
     @Override
     public void drawPixmapAlpha(Pixmap pixmap, float x, float y, int alpha) {
         paint.setAlpha(alpha);
 
-        canvas.drawBitmap(((AndroidPixmap)pixmap).bitmap, x, y, paint);
+        canvas.drawBitmap(((AndroidPixmap) pixmap).bitmap, x, y, paint);
 
         paint.setAlpha(0xFF);
     }
@@ -245,7 +296,7 @@ public final class AndroidGraphics implements Graphics {
     @Override
     public void drawPixmapDegree(Pixmap pixmap, float x, float y, float degree) {
         Bitmap bmp = ((AndroidPixmap) pixmap).bitmap;
-        matrix.setTranslate(x-bmp.getWidth()/2, y-bmp.getHeight()/2);
+        matrix.setTranslate(x - bmp.getWidth() / 2, y - bmp.getHeight() / 2);
         matrix.postRotate(degree, x, y);
         canvas.drawBitmap(bmp, matrix, null);
     }
@@ -253,8 +304,8 @@ public final class AndroidGraphics implements Graphics {
     @Override
     public void drawPixmapScale(Pixmap pixmap, float x, float y, float ScaX, float ScaY, int alpha) {
         Bitmap bmp = ((AndroidPixmap) pixmap).bitmap;
-        matrix.setTranslate(x-bmp.getWidth()/2, y-bmp.getHeight()/2);
-        matrix.postScale(ScaX, ScaY,x,y);
+        matrix.setTranslate(x - bmp.getWidth() / 2, y - bmp.getHeight() / 2);
+        matrix.postScale(ScaX, ScaY, x, y);
         paint.setAlpha(alpha);
         canvas.drawBitmap(bmp, matrix, paint);
 
@@ -266,22 +317,32 @@ public final class AndroidGraphics implements Graphics {
         paint.setColor(color);
         paint.setTextSize(size);
         paint.setStyle(Paint.Style.FILL);
-        canvas.drawText(text, x, y,paint);
+        paint.setTextAlign(Paint.Align.LEFT);
+        canvas.drawText(text, x, y, paint);
     }
 
     @Override
-    public void drawSquareRadians(float x, float y, int r, int color, float radians){
+    public void drawText(String text, int x, int y, int color, int size, Paint.Align textAlign) {
+        paint.setColor(color);
+        paint.setTextSize(size);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setTextAlign(textAlign);
+        canvas.drawText(text, x, y, paint);
+    }
+
+    @Override
+    public void drawSquareRadians(float x, float y, int r, int color, float radians) {
         paint.setColor(color);
         paint.setStyle(Paint.Style.FILL);
-        float dx = (float) (r*Math.cos(radians));
-        float dy = (float) (r*Math.sin(radians));
+        float dx = (float) (r * Math.cos(radians));
+        float dy = (float) (r * Math.sin(radians));
         path.rewind();//快速重用
-        path.moveTo(x+dx,y+dy);//起点  
-        path.lineTo(x+dy,y-dx);
-        path.lineTo(x-dx,y-dy);
-        path.lineTo(x-dy,y+dx);
+        path.moveTo(x + dx, y + dy);//起点  
+        path.lineTo(x + dy, y - dx);
+        path.lineTo(x - dx, y - dy);
+        path.lineTo(x - dy, y + dx);
         path.close();//封闭
-        canvas.drawPath(path,paint);
+        canvas.drawPath(path, paint);
     }
 
     @Override

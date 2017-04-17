@@ -77,5 +77,8 @@ public class Controller {
     public int getPadY(){
         return PadY;
     }
+    public boolean isPressed(){
+        return Pointer != -1;
+    }
 
 }

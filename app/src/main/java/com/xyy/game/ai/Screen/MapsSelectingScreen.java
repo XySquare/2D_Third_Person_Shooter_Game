@@ -81,6 +81,9 @@ public class MapsSelectingScreen extends Screen {
                     case 0:
                         game.setScreen(new GameLoadingScreen(game, "map00"));
                         break;
+                    case 1:
+                        game.setScreen(new Screen_MainMenu_Store(game));
+                        break;
                 }
             }
         }
@@ -143,7 +146,7 @@ public class MapsSelectingScreen extends Screen {
                     if (eventY > 180 && eventY < 540) {
                         if (eventX > 320 && eventX < 960 && state == 1) {//中间
                             final int click = (size + mid - ifDir) % size;
-                            if (click <= 0) {//TODO: 如有更多可用的地图,请修改此值
+                            if (click <= 1) {//TODO: 如有更多可用的地图,请修改此值
                                 targetScale = 1;
                                 this.clicked = click;
                             }

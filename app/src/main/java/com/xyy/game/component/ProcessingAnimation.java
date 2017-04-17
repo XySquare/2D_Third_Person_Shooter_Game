@@ -52,8 +52,8 @@ public class ProcessingAnimation {
     }
 
     public void present(Graphics g){
-        //半透明灰色背景（非黑色，保证在黑色背景下能看见）
-        g.drawRect(x,y,width,height,0x7F333333);
+        //半透明灰色背景
+        g.drawRect(x,y,width,height,0x6F000000);
         //背景半透明进度条
         g.drawRect(x,y, (int) currentWidthBg,height,BGColor);
         //前景不透明进度条

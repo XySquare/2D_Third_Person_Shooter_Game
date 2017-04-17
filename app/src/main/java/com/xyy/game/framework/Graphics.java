@@ -2,6 +2,7 @@ package com.xyy.game.framework;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapRegionDecoder;
+import android.graphics.Paint;
 import android.graphics.Shader;
 
 /**
@@ -37,6 +38,8 @@ public interface Graphics {
      * @return AndroidBitmap实例
      */
     Pixmap newPixmap(String fileName, PixmapFormat format);
+
+    Pixmap newPixmap(String fileName, PixmapFormat format, int srcX, int srcY, int srcWidth, int srcHeight);
 
     /**
      * 用特定颜色清除人工帧缓冲区
@@ -140,6 +143,8 @@ public interface Graphics {
      * @param size  字号
      */
     void drawText(String text, int x, int y, int color, int size);
+
+    void drawText(String text, int x, int y, int color, int size, Paint.Align textAlign);
 
     void drawSquareRadians(float x, float y, int r, int color, float radians);
 

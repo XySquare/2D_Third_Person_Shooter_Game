@@ -3,6 +3,7 @@ package com.xyy.game.framework.impl;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapRegionDecoder;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
@@ -120,7 +121,59 @@ public final class AndroidGraphicsLowQuality implements Graphics {
         else
             format = PixmapFormat.ARGB8888;
 
-        Log.v("new Pixmap","W/H = "+bitmap.getWidth()+" / "+bitmap.getHeight());
+        return new AndroidPixmap(bitmap, format);
+    }
+
+    @Override
+    public Pixmap newPixmap(String fileName, PixmapFormat format, int srcX, int srcY, int srcWidth, int srcHeight) {
+        Bitmap.Config config;
+        //将PixmapFormat转换为Bitmap.Config常量
+        if (format == PixmapFormat.RGB565)
+            config = Bitmap.Config.RGB_565;
+        else if (format == PixmapFormat.ARGB4444)
+            config = Bitmap.Config.ARGB_4444;
+        else
+            config = Bitmap.Config.ARGB_8888;
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inPreferredConfig = config;
+        //1/2加载
+        options.inSampleSize = 2;
+
+        srcRect.left = srcX;
+        srcRect.top = srcY;
+        srcRect.right = srcX + srcWidth;
+        srcRect.bottom = srcY + srcHeight;
+
+        InputStream in = null;
+        Bitmap bitmap = null;
+        try {
+            //加载位图
+            in = assets.open(fileName);
+            BitmapRegionDecoder bitmapRegionDecoder = BitmapRegionDecoder.newInstance(in, true);
+            bitmap = bitmapRegionDecoder.decodeRegion(srcRect, options);
+            if (bitmap == null)
+                throw new RuntimeException("Couldn't load bitmap from asset '"
+                        + fileName + "'");
+        } catch (IOException e) {
+            throw new RuntimeException("Couldn't load bitmap from asset '"
+                    + fileName + "'");
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+
+        //重新检测图片格式
+        if (bitmap.getConfig() == Bitmap.Config.RGB_565)
+            format = PixmapFormat.RGB565;
+        else if (bitmap.getConfig() == Bitmap.Config.ARGB_4444)
+            format = PixmapFormat.ARGB4444;
+        else
+            format = PixmapFormat.ARGB8888;
 
         return new AndroidPixmap(bitmap, format);
     }
@@ -318,6 +371,19 @@ public final class AndroidGraphicsLowQuality implements Graphics {
         paint.setColor(color);
         paint.setTextSize(size);
         paint.setStyle(Paint.Style.FILL);
+        paint.setTextAlign(Paint.Align.LEFT);
+        canvas.drawText(text, x, y, paint);
+    }
+
+    @Override
+    public void drawText(String text, int x, int y, int color, int size, Paint.Align textAlign) {
+        x>>=1;
+        y>>=1;
+        size>>=1;
+        paint.setColor(color);
+        paint.setTextSize(size);
+        paint.setStyle(Paint.Style.FILL);
+        paint.setTextAlign(textAlign);
         canvas.drawText(text, x, y, paint);
     }
 

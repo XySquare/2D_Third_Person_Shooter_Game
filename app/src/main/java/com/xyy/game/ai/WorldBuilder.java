@@ -5,6 +5,7 @@ import android.util.Log;
 import com.xyy.game.AStar.AStarFindPath;
 import com.xyy.game.ai.Character.Character;
 import com.xyy.game.ai.Screen.GameScreen;
+import com.xyy.game.ai.Weapon.Weapon;
 import com.xyy.game.framework.FileIO;
 import com.xyy.game.framework.Game;
 import com.xyy.game.framework.Pixmap;
@@ -59,7 +60,14 @@ public class WorldBuilder implements Runnable {
     public void run() {
         initialization(worldData);
 
-        Log.i("WorldBuilder","initialized.");
+        Log.i("WorldBuilder","World initialized.");
+
+        Weapon[] sEquippedWeapons = UserDate.sEquippedWeapons;
+        for (Weapon weapon: sEquippedWeapons) {
+            weapon.loadPixmap(game.getGraphics(), Weapon.PixmapQuality.LOW);
+        }
+
+        Log.i("WorldBuilder","UserDate initialized.");
 
         while (AssetsLoader.getState()< AssetsLoader.GAME_LOADED){
             try {
@@ -96,7 +104,7 @@ public class WorldBuilder implements Runnable {
             }
 
             @Override
-            public int[] getPlayerStartPoint() {
+            public iPoint getPlayerStartPoint() {
                 return worldData.getPlayerStartPoint();
             }
 
@@ -128,7 +136,7 @@ public class WorldBuilder implements Runnable {
 
         GameDataManager.load(worldData.getDataToLoad(), fileIO);
 
-        BuffManager.setBuffs(worldData.getBuffList());
+        //BuffManager.setBuffs(worldData.getBuffList());
 
         //区块宽度(实际处理时将以3*3个区块为一个判断区域)
         int blockWidth = worldData.getBlockWidth();
@@ -178,7 +186,7 @@ public class WorldBuilder implements Runnable {
         Line[][] blocksList = initializeBlocksList(lines, blockWidth, blockXNum, blockYNum);
 
         //初始化地图块用于寻路
-        int seed = worldData.getPlayerStartPoint()[0] / blockWidth * 2 + worldData.getPlayerStartPoint()[1] / blockWidth * 2 * blockXNum * 2;
+        int seed = worldData.getPlayerStartPoint().x / blockWidth * 2 + worldData.getPlayerStartPoint().y / blockWidth * 2 * blockXNum * 2;
         byte[] mapForFingPath = initializeMapForFindPath(lines, blockWidth / 2, blockXNum * 2, blockYNum * 2,seed);
 
         //构建环境

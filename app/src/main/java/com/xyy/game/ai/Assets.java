@@ -12,6 +12,17 @@ public class Assets {
     /**
      * UI
      */
+    //Main_Menu_Store
+    public static Pixmap background;
+
+    public static Pixmap main_menu_top_bar;
+
+    public static Pixmap list_item_weapon, list_item_weapon_bronze, list_item_weapon_silver, list_item_weapon_gold;
+
+    public static Pixmap button_details;
+
+    public static Pixmap button_tab;
+
     //摇杆
     public static Pixmap padA, pad;
     //BUFF_ICO
@@ -75,7 +86,7 @@ public class Assets {
     //HP
     public static Pixmap aid;
 
-    public static Pixmap test;
+    public static Pixmap btArrowLeft, btArrowRight;
 
     //public static BitmapRegionDecoder map0_Bg;
 }

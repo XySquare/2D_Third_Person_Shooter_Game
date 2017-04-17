@@ -35,11 +35,6 @@ public interface WorldData {
     Pixmap getMapBackGround();
 
     /**
-     * @return 在该地图中所要用到的Buff实例
-     */
-    Buff[] getBuffList();
-
-    /**
      * @return 需加载的权重
      */
     String[] getDataToLoad();
@@ -47,5 +42,5 @@ public interface WorldData {
     /**
      * @return 玩家开始地点坐标
      */
-    int[] getPlayerStartPoint();
+    iPoint getPlayerStartPoint();
 }

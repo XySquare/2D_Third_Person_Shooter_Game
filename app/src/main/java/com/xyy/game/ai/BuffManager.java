@@ -2,14 +2,19 @@ package com.xyy.game.ai;
 
 
 import android.util.Log;
+import android.util.SparseArray;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by ${XYY} on ${2016/9/7}.
  */
 public class BuffManager {
-    public final class BuffRecord{
+    public final class BuffRecord {
         private Buff buff;
         /**
          * 剩余时间
@@ -24,59 +29,58 @@ public class BuffManager {
          */
         private float remainTimeRatio;
 
-        private void initialize(Buff buff){
+        private void initialize(Buff buff) {
             this.buff = buff;
             timer = buff.duration;
             counter = 1;
         }
 
-        private boolean add(){
+        private boolean add() {
             //若该Buff小于最大叠加层数，或叠加无上限...
-            if(counter<buff.max || buff.max==0){
+            if (counter < buff.max || buff.max == 0) {
                 //Buff叠加一层
                 counter++;
                 //刷新Buff时间
                 timer = buff.duration;
-                Log.v("BuffMag","["+buff.name+"]叠加 "+counter+"/"+buff.max);
+                Log.v("BuffMag", "[" + buff.name + "]叠加 " + counter + "/" + buff.max);
                 //需刷新当前属性
                 return true;
             }
             //若叠加以达上限，如果Buff可刷新
-            else if(buff.refresh){
+            else if (buff.refresh) {
                 //刷新Buff时间
                 timer = buff.duration;
-                Log.v("BuffMag","["+buff.name+"]已达上限，刷新时间");
-            }
-            else{
-                Log.v("BuffMag","["+buff.name+"]已达上限，且被禁止刷新时间，获得的Buff无效");
+                Log.v("BuffMag", "[" + buff.name + "]已达上限，刷新时间");
+            } else {
+                Log.v("BuffMag", "[" + buff.name + "]已达上限，且被禁止刷新时间，获得的Buff无效");
             }
             //无需刷新当前属性
             return false;
         }
 
-        private boolean accessTime(float deltaTime){
+        private boolean accessTime(float deltaTime) {
             if (timer > 0) {
                 timer -= deltaTime;
-                remainTimeRatio = timer/buff.duration;
+                remainTimeRatio = timer / buff.duration;
                 if (timer <= 0)
                     return true;
             }
             return false;
         }
 
-        public float getRemainTimeRatio() {
+        float getRemainTimeRatio() {
             return remainTimeRatio;
         }
 
-        public int getCounter() {
+        int getCounter() {
             return counter;
         }
 
-        public int getBuffIco(){
+        int getBuffIco() {
             return buff.ico;
         }
 
-        private boolean equals(int uid){
+        private boolean equals(int uid) {
             return buff.equals(uid);
         }
     }
@@ -84,7 +88,7 @@ public class BuffManager {
     /**
      * 游戏中出现的全部Buff
      */
-    private static Buff[] buffs;
+    //private static Buff[] buffs;
     /**
      * 角色当前持有的Buff
      */
@@ -108,17 +112,16 @@ public class BuffManager {
 
     /**
      * 初始化Buff
-     * @param buffList 从World中获得
+     * //@param buffList 从World中获得
      */
-    public static void setBuffs(Buff[] buffList){
+    /*public static void setBuffs(Buff[] buffList){
         BuffManager.buffs = buffList;
-    }
-
-    public BuffManager(int[] primitiveProperty, int[] currentProperty){
-        buffList = new ArrayList<>(buffs.length);
+    }*/
+    public BuffManager(int[] primitiveProperty, int[] currentProperty) {
+        buffList = new ArrayList<>();
 
         values = new int[5];
-        percentages = new float[]{1,1,1,1,1};
+        percentages = new float[]{1, 1, 1, 1, 1};
 
         this.primitiveProperty = primitiveProperty;
         this.currentProperty = currentProperty;
@@ -126,52 +129,54 @@ public class BuffManager {
 
     /**
      * 通过uid为该角色添加Buff
+     *
      * @param uid Buff对应的uid
      */
-    public void addBuff(int uid){
+    public void addBuff(int uid) {
         //查找当前是否存在相同的Buff
         int index;
-        for(index=0;index<buffList.size();index++){
-            if(buffList.get(index).equals(uid)) break;
+        for (index = 0; index < buffList.size(); index++) {
+            if (buffList.get(index).equals(uid)) {
+                //如果存在，则尝试叠加
+                if (buffList.get(index).add()) {
+                    //如果叠加成功
+                    //Buff buff = getBuff(uid);
+                    Buff buff = buffList.get(index).buff;
+                    //则刷新当前属性
+                    int len = buff.type.length;
+                    for (short i = 0; i < len; i++) {
+                        char type = buff.type[i];
+                        values[type] += buff.value[i];
+                        percentages[type] += buff.percentage[i];
+
+                        currentProperty[type] = (int) (primitiveProperty[type] * percentages[type] + values[type]);
+                    }
+                }
+                return;
+            }
         }
         //如果不存在，则新增
-        if(index==buffList.size()){
-            Buff buff = getBuff(uid);
-            BuffRecord buffRecord = new BuffRecord();
-            buffRecord.initialize(buff);
-            buffList.add(buffRecord);
-            //则刷新当前属性
-            int len = buff.type.length;
-            for (short i = 0; i < len; i++) {
-                char type = buff.type[i];
-                values[type] += buff.value[i];
-                percentages[type] += buff.percentage[i];
+        Buff buff = Buff.get(uid);
+        BuffRecord buffRecord = new BuffRecord();
+        buffRecord.initialize(buff);
+        buffList.add(buffRecord);
+        //则刷新当前属性
+        int len = buff.type.length;
+        for (short i = 0; i < len; i++) {
+            char type = buff.type[i];
+            values[type] += buff.value[i];
+            percentages[type] += buff.percentage[i];
 
-                currentProperty[type] = (int) (primitiveProperty[type] * percentages[type] + values[type]);
-            }
-            Log.v("BuffMag","获得["+buff.name+"]");
+            currentProperty[type] = (int) (primitiveProperty[type] * percentages[type] + values[type]);
         }
-        //如果存在，则尝试叠加
-        else if(buffList.get(index).add()) {
-            //如果叠加成功
-            Buff buff = getBuff(uid);
-            //则刷新当前属性
-            int len = buff.type.length;
-            for (short i = 0; i < len; i++) {
-                char type = buff.type[i];
-                values[type] += buff.value[i];
-                percentages[type] += buff.percentage[i];
-
-                currentProperty[type] = (int) (primitiveProperty[type] * percentages[type] + values[type]);
-            }
-        }
+        Log.v("BuffMag", "获得[" + buff.name + "]");
     }
 
     /**
      * 更新Buff剩余时间，移除过期Buff
      */
     public void update(float deltaTime) {
-        for(int index=0;index<buffList.size();index++){
+        for (int index = 0; index < buffList.size(); index++) {
             BuffRecord buffRecord = buffList.get(index);
             //若当前Buff剩余时间为0
             if (buffRecord.accessTime(deltaTime)) {
@@ -192,8 +197,8 @@ public class BuffManager {
         }
     }
 
-    public void updatePropertyType(char type){
-        currentProperty[type] = (int) (primitiveProperty[type]*percentages[type]+values[type]);
+    public void updatePropertyType(char type) {
+        currentProperty[type] = (int) (primitiveProperty[type] * percentages[type] + values[type]);
     }
 
     public ArrayList<BuffRecord> getBuffList() {
@@ -205,15 +210,15 @@ public class BuffManager {
      * @param uid Buff对应的uid
      * @return Buff对象
      */
-    private Buff getBuff(int uid){
+    /*private Buff getBuff(int uid){
         for (Buff buff:buffs) {
             if(buff.equals(uid)) return buff;
         }
         Log.e("Buff", "无法找到对应 Buff uid = " + uid);
         return nullBuff;
-    }
+    }*/
 
     //一个空Buff
-    private Buff nullBuff = new Buff(Buff.NULL, new char[]{}, new int[]{}, new float[]{}, 0, 0, false, -1, "");
+    //private Buff nullBuff = new Buff(Buff.NULL, new char[0], new int[0], new float[0], 0, 0, false, -1, "");
 
 }

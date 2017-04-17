@@ -3,6 +3,7 @@ package com.xyy.game.ai;
 import com.xyy.game.ai.Character.Character;
 import com.xyy.game.framework.Pixmap;
 import com.xyy.game.util.Line;
+import com.xyy.game.util.iPoint;
 
 /**
  * Stage将通过该接口获取地图数据
@@ -20,6 +21,6 @@ public interface World {
 
     Line[] getLines();
 
-    int[] getPlayerStartPoint();
+    iPoint getPlayerStartPoint();
 
 }
