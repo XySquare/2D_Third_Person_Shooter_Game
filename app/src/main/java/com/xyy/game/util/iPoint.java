@@ -21,4 +21,18 @@ public class iPoint {
         return (x==this.x && y==this.y);
     }
 
+    //绕(ox,oy)旋转:
+    public void rotate(float ox, float oy, double rotation) {
+        double cos = Math.cos(rotation);
+        double sin = Math.sin(rotation);
+        double xx,yy;
+
+        //"原点平移",平移的向量为-(ox, oy)
+        xx = x - ox;
+        yy = y - oy;
+
+        //旋转,"复位平移", 平移的向量为(ox, oy)
+        x = (int)((xx * cos - yy * sin) + ox);
+        y = (int)((xx * sin + yy * cos) + oy);
+    }
 }

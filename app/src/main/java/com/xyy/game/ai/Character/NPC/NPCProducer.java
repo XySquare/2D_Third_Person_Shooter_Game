@@ -3,6 +3,7 @@ package com.xyy.game.ai.Character.NPC;
 import android.support.annotation.NonNull;
 
 import com.xyy.game.ANN.GenPool;
+import com.xyy.game.ANN.NeuralNet;
 import com.xyy.game.ai.*;
 import com.xyy.game.ai.Attack.AtkInfo;
 import com.xyy.game.ai.Attack.CataclysmAttack;
@@ -22,17 +23,23 @@ public final class NPCProducer extends Character implements NPC {
 
     private float timer;
 
+ //   private NeuralNet mNeuralNet;
+    private double[] weights;
+
     public NPCProducer(Stage stage) {
         super(stage);
 
-            //初始化基因池
-            genPool = GameDataManager.getGenPool("Data.dat");
+        //初始化基因池
+        genPool = GameDataManager.getGenPool("Data.dat");
+
+    //    mNeuralNet = new NeuralNet(5, 4, 6);
+    //    mNeuralNet.Train(DefenceCharacter.sData);
 
         this.r = 100;
         setMaxHp(500);
     }
 
-    public void initialize(@NonNull NPC parent, String name,int x,int y){
+    public void initialize(@NonNull NPC parent, String name, int x, int y) {
         this.parent = parent;
         this.name = name;
         this.x = x;
@@ -44,9 +51,9 @@ public final class NPCProducer extends Character implements NPC {
 
     @Override
     protected int onDestroyed() {
-        if(timer < 0.2) return getMaxHp();
+        if (timer < 0.2) return getMaxHp();
         CataclysmAttack cataclysmAttack = new CataclysmAttack(stage);
-        cataclysmAttack.initialize(this,x,y);
+        cataclysmAttack.initialize(this, x, y);
         stage.addAtkPlayer(cataclysmAttack);
         stage.accessScore(50);
         parent.onChildrenDestroyed(this);
@@ -60,7 +67,7 @@ public final class NPCProducer extends Character implements NPC {
 
     @Override
     public void onHitByCharacter(Character character, AtkInfo attack) {
-        if(getHp()<=0){
+        if (getHp() <= 0) {
             character.addBuff(1);
         }
         //character.accessEnergy(attack.getEnergy()*2);//返还2倍能量
@@ -88,15 +95,25 @@ public final class NPCProducer extends Character implements NPC {
 
     @Override
     public void updateInner(float deltaTime, Environment environment) {
-        if(timer < 0.2)
+        if (timer < 0.2)
             timer += deltaTime;
         //随机生成敌人（调试）
-        if(Math.random()>0.99 && childrenCounter <3){
-            SimpleCharacter simpleCharacter = new SimpleCharacter(stage);//暂时没使用回收池
-            simpleCharacter.initialize(this,"SimpleCharacter"+ childrenCounter,(int)x,(int)y);
-            simpleCharacter.putWeights(genPool.get());
-            stage.addHostile(simpleCharacter);
-            stage.addToTrackList(simpleCharacter);
+        if (Math.random() > 0.99 && childrenCounter < 3) {
+            if (Math.random() > 0.5) {
+                SimpleCharacter simpleCharacter = new SimpleCharacter(stage);//暂时没使用回收池
+                simpleCharacter.initialize(this, "SimpleCharacter" + childrenCounter, (int) x, (int) y);
+                double[] gen = genPool.get();
+                simpleCharacter.putWeights(gen);
+                stage.addHostile(simpleCharacter);
+                stage.addToTrackList(simpleCharacter);
+            } else {
+                DefenceCharacter defenceCharacter = new DefenceCharacter(stage);
+                defenceCharacter.initialize(this, "DefenceCharacter" + childrenCounter, (int) x, (int) y);
+       //         defenceCharacter.putWeights(mNeuralNet.GetWeights());
+                defenceCharacter.putWeights(weights);
+                stage.addHostile(defenceCharacter);
+                stage.addToTrackList(defenceCharacter);
+            }
             childrenCounter++;
         }
     }
@@ -104,13 +121,26 @@ public final class NPCProducer extends Character implements NPC {
     @Override
     public void present(Graphics g, float offsetX, float offsetY) {
         //g.drawCircle(x-offsetX,y-offsetY,100,0xFF66CCFF);
-        g.drawPixmap(Assets.NPCProducer,x-offsetX-100,y-offsetY-100);
+        g.drawPixmap(Assets.NPCProducer, x - offsetX - 100, y - offsetY - 100);
     }
 
     @Override
     public void onChildrenDestroyed(NPC child) {
+
         childrenCounter--;
-        genPool.inster(child.getWeights(),child.getFitness(),child.getLiveTime());
+        if (child.getName().startsWith("SimpleCharacter")) {
+            genPool.inster(child.getWeights(), child.getFitness(), child.getLiveTime());
+
+        }
         parent.onChildrenDestroyed(child);
+    }
+
+    public void setWeights(double[] weights) {
+        this.weights = weights;
+    }
+
+    @Override
+    public boolean canBeDefended() {
+        return false;
     }
 }

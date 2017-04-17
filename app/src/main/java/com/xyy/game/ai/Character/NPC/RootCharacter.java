@@ -3,11 +3,11 @@ package com.xyy.game.ai.Character.NPC;
 import android.util.Log;
 
 import com.xyy.game.ANN.GenPool;
+import com.xyy.game.ANN.NeuralNet;
 import com.xyy.game.ai.*;
 import com.xyy.game.ai.Attack.AtkInfo;
 import com.xyy.game.ai.Attack.InvisibleAttackBeforeCataclysm;
 import com.xyy.game.ai.Character.Character;
-import com.xyy.game.component.ProcessingAnimation;
 import com.xyy.game.component.ProcessingAnimationRever;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.util.Utils;
@@ -48,6 +48,8 @@ public final class RootCharacter extends Character implements NPC {
 
     private ProcessingAnimationRever loadPrc;
 
+    private NeuralNet mNeuralNet;
+
     public RootCharacter(Stage stage) {
         super(stage);
 
@@ -61,8 +63,12 @@ public final class RootCharacter extends Character implements NPC {
 
         npcProducer = new NPCProducer[10];
 
+        mNeuralNet = new NeuralNet(4, 4, 6);
+        mNeuralNet.Train(DefenceCharacter.sData);
+
         for(int i=0;i<npcProducer.length;i++){
             npcProducer[i] = new NPCProducer(stage);
+            npcProducer[i].setWeights(mNeuralNet.GetWeights());
         }
 
         iPoint[] points = new iPoint[]{new iPoint(415,2584),new iPoint(613,2384),
@@ -236,5 +242,10 @@ public final class RootCharacter extends Character implements NPC {
         g.drawRing(1280/2, 0, 50, 0, 180, 0x7FFFFFFF,8);
         //绘制环形进度条
         g.drawRing(1280/2, 0, 50, 0, 180*(float)counterToNextRound/NEXT_ROUND, 0xFFFFFFFF,8);
+    }
+
+    @Override
+    public boolean canBeDefended() {
+        return false;
     }
 }

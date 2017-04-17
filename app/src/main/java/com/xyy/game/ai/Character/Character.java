@@ -5,6 +5,8 @@ import android.util.Log;
 
 import com.xyy.game.ai.Attack.AtkInfo;
 import com.xyy.game.ai.BuffManager;
+import com.xyy.game.ai.Character.NPC.Defended;
+import com.xyy.game.ai.Character.NPC.Defender;
 import com.xyy.game.ai.Character.NPC.NPC;
 import com.xyy.game.ai.Environment;
 import com.xyy.game.ai.GameObject;
@@ -17,7 +19,7 @@ import java.util.ArrayList;
  * 玩家与怪物的基类
  * Created by ${XYY} on ${2015/3/5}.
  */
-public abstract class Character extends GameObject {
+public abstract class Character extends GameObject implements Defended{
     //移动速度
     public static final char V = 0;
     //攻击力
@@ -74,6 +76,8 @@ public abstract class Character extends GameObject {
      * 战斗中恢复计时器
      */
     private float timerRecovery;
+
+    private Defender mDefender;
 
     public Character(Stage stage) {
         super(stage);
@@ -164,6 +168,9 @@ public abstract class Character extends GameObject {
             final int def = getDef();
             hp += (int) (val * (1 - (n * def) / (1 + n * def)));
             if (hp <= 0) {
+                if (defender() != null) {
+                    defender().onDefendedDestroyed(this);
+                }
                 hp = onDestroyed();
             }
             this.hp = hp;
@@ -179,6 +186,9 @@ public abstract class Character extends GameObject {
         if(hp>0) { //避免角色死亡后重复回调
             hp += val;
             if (hp <= 0) {
+                if (defender() != null) {
+                    defender().onDefendedDestroyed(this);
+                }
                 hp = onDestroyed();
             } else if (hp > getMaxHp()) {
                 hp = getMaxHp();
@@ -215,6 +225,9 @@ public abstract class Character extends GameObject {
 
     public void setHp(int val){
         if(hp>0 && val <= 0) { //避免角色死亡后重复回调
+            if (defender() != null) {
+                defender().onDefendedDestroyed(this);
+            }
             hp = onDestroyed();
         }
         else{
@@ -333,5 +346,22 @@ public abstract class Character extends GameObject {
      */
     public final boolean isDead() {
         return hp<=0;
+    }
+
+    @Override
+    public Defender defender() {
+        return mDefender;
+    }
+
+    @Override
+    public void onDefendedBy(Defender defender) {
+        mDefender = defender;
+    }
+
+    @Override
+    public void onLostDefenceBy(Defender defender) {
+        if (mDefender == defender) {
+            mDefender = null;
+        }
     }
 }

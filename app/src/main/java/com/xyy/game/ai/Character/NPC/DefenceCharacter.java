@@ -3,6 +3,7 @@ package com.xyy.game.ai.Character.NPC;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.xyy.game.ANN.Data;
 import com.xyy.game.ANN.NeuralNet;
 import com.xyy.game.AStar.AStarFindPath;
 import com.xyy.game.FSM.FSMState;
@@ -14,7 +15,6 @@ import com.xyy.game.ai.Attack.Attack;
 import com.xyy.game.ai.Attack.EnergyBox;
 import com.xyy.game.ai.Attack.GeneralCircleAttack;
 import com.xyy.game.ai.Attack.GeneralLineAttack;
-import com.xyy.game.ai.Attack.GeneralPolygonAttack;
 import com.xyy.game.ai.Attack.LifeBox;
 import com.xyy.game.ai.Character.Character;
 import com.xyy.game.ai.Effect.MultSquareEffect;
@@ -25,10 +25,27 @@ import com.xyy.game.util.Line;
 import java.util.ArrayList;
 
 /**
- * 一个简单角色
- * Created by ${XYY} on ${2016/8/3}.
+ * 一个防御型角色
+ * 2017/4/14
  */
-public final class SimpleCharacter extends Character implements NPC{
+public final class DefenceCharacter extends Character implements NPC, Defender{
+
+    public static final Data sData = new Data() {
+        public double[][] GetInputSet() {
+            return new double[][]{{-0.2,0,0,0.5}, {0,0,0,0.5}, {0.2,0,0,0.5},
+                    {0,0,-1,0.5}, {0,0,-0.1,0.5}, {0,0,0.1,0.5},{0,0,1,0.5},
+                    {0,-1,-1,0.5}, {0,-0.1,-1,0.5}, {0,0.1,-1,0.5}, {0,1,-1,0.5},
+                    {0,-1,-1,0.1}, {0,-1,-1,1} };
+        }
+
+        public double[][] GetOutputSet() {
+            return new double[][]{{0,1,0,0}, {0,0,0,0},{1,0,0,0},
+                    {0,0,1,0}, {0,0,1,0}, {0,0,0,1}, {0,0,0,1},
+                    {0,0,0,1}, {0,0,0,1}, {0,0,1,0}, {0,0,1,0},
+                    {1,0,0,1}, {0,1,0,1}};
+        }
+    };
+
     /**
      * x/y方向上的速度（px/s）
      */
@@ -61,11 +78,11 @@ public final class SimpleCharacter extends Character implements NPC{
      * 输入：到玩家的距离，到最近的攻击对象的距离，到最近的攻击对象的连线与到玩家连线的夹角（弧度）
      * 输出：前/后/左/右
      */
-    private NeuralNet neuralNet = new NeuralNet(7, 4, 6);
+    private NeuralNet neuralNet = new NeuralNet(4, 4, 6);
     /**
      * 缓存网络的输入
      */
-    private double[] NetInputs = new double[7];
+    private double[] NetInputs = new double[4];
     /**
      * A*寻路
      */
@@ -91,21 +108,22 @@ public final class SimpleCharacter extends Character implements NPC{
      */
     private boolean findPath;
 
-    private static ArrayList<SimpleCharacter> rank = new ArrayList<>(4);
+    private int minDistanceFromPlayer = 300;
+    private int distanceSensitivity = 1000;
+    private int avoidSensitivity = 200;
+    private int defenceSensitivity = 50;
 
     private boolean shouldAddBuff;
 
-    private boolean canBeDefended = true;
+    private Defended mDefended;
 
-    private int safeDistance = 700;
-
-    public SimpleCharacter(final Stage stage) {
+    public DefenceCharacter(final Stage stage) {
         super(stage);
-        this.r = 65;
+        this.r = 85;
         setV(200);
-        setMaxHp(20);
-        setHp(20);
-        setAtk(2);
+        setMaxHp(100);
+        setHp(100);
+        setAtk(1);
         /**
          * 初始化状态表
          */
@@ -180,14 +198,54 @@ public final class SimpleCharacter extends Character implements NPC{
 
         vx = vy = 0;
 
-        atkDelay = (float) (1 + Math.random());
+        atkDelay = (float) (2 + Math.random());
 
         shouldAddBuff = false;
     }
 
     @Override
+    public Defended defended(){
+        return mDefended;
+    }
+
+    @Override
+    public void defend(Defended defended) {
+        if (mDefended != null) {
+            unDefend(mDefended);
+        }
+
+        mDefended = defended;
+
+        if (defended == null) {
+            return;
+        }
+
+        defended.onDefendedBy(this);
+    }
+
+    @Override
+    public void unDefend(Defended defended) {
+        if (mDefended == defended) {
+            mDefended = null;
+
+            if (defended != null) {
+                defended.onLostDefenceBy(this);
+            }
+        }
+    }
+
+    @Override
+    public void onDefendedDestroyed(Defended defended) {
+        if (defended == null) {
+            return;
+        }
+
+        unDefend(defended);
+    }
+
+    @Override
     public boolean canBeDefended() {
-        return canBeDefended;
+        return false;
     }
 
     /**
@@ -384,11 +442,6 @@ public final class SimpleCharacter extends Character implements NPC{
     @Override
     public void present(Graphics g, float offsetX, float offsetY) {
         g.drawPixmapDegree(Assets.hostile, this.x - offsetX, this.y - offsetY, rotation);
-        int order = rank.indexOf(this);
-        if(order>=0){
-            //g.drawText((order+1)+"th_"+(int)fitness,(int)(this.x - offsetX), (int) (this.y - offsetY),0xFFFFFFFF,16);
-            g.drawPixmap(Assets.ranks,(int)(this.x-47- offsetX),(int)(this.y-47- offsetY),24*order,0,24,28);
-        }
     }
 
     @Override
@@ -411,14 +464,8 @@ public final class SimpleCharacter extends Character implements NPC{
 
     @Override
     protected int onDestroyed() {
-        //TODO: 从排名中移除该对象（如果有）
-        int i = rank.indexOf(this);
-        if(i>0) {
-            stage.accessScore(10 + 5*(3 - i));
-            rank.remove(i);
-            shouldAddBuff = true;
-        }else
-            stage.accessScore(10);
+        stage.accessScore(10);
+
         //被销毁时产生范围攻击
         GeneralCircleAttack atkObj = new GeneralCircleAttack(stage);
         atkObj.initialize(this, x, y, 0, 0, 0, 25 * getAtk(), 100);
@@ -477,6 +524,52 @@ public final class SimpleCharacter extends Character implements NPC{
         return liveTime;
     }
 
+    /**
+     * line: Ax + By + C = 0;
+     */
+    private class MyLine {
+        float A;
+        float B;
+        float C;
+
+        MyLine(float a, float b, float c) {
+            this.A = a;
+            this.B = b;
+            this.C = c;
+        }
+
+        float k() throws Exception{
+            if (kIsNull()) {
+                throw new Exception("k Is Not Existed");
+            }
+            return - A / B;
+        }
+
+        float offset(float x, float y) {
+            return (A * x + B * y + C) / (float)Math.sqrt(A * A + B * B);
+        }
+
+        boolean kIsNull() {
+            return B == 0;
+        }
+
+        MyLine perpendicular(float x, float y) {
+            if (kIsNull()) {
+                return new MyLine(0,A,- A * y);
+            }
+
+            float a = B;
+            float b = - A;
+            float c = A * y - B * x;
+
+            return new MyLine(a,b,c);
+        }
+    }
+
+    private MyLine getLine(float x1, float y1, float x2, float y2) {
+        return new MyLine(y2 - y1, x1 - x2, x2*y1 - x1*y2);
+    }
+
     private void active(float deltaTime, Environment environment) {
 
         start = environment.getIndex(x, y);
@@ -491,7 +584,7 @@ public final class SimpleCharacter extends Character implements NPC{
         float YComponentToPlayer = environment.getPlayerY() - this.y;
 
         //如果坐标与玩家重合，则随机一个值
-        if(XComponentToPlayer==0 && YComponentToPlayer==0){
+        if (XComponentToPlayer == 0 && YComponentToPlayer == 0) {
             XComponentToPlayer = (float) Math.random() + 1;
             YComponentToPlayer = (float) Math.random() + 1;
         }
@@ -500,8 +593,6 @@ public final class SimpleCharacter extends Character implements NPC{
         float distanceToPlayer = (float) Math.sqrt
                 (XComponentToPlayer * XComponentToPlayer + YComponentToPlayer * YComponentToPlayer);
 
-        canBeDefended = distanceToPlayer < safeDistance;
-
         //指向玩家的单位向量
         final float XUnitToPlayer = XComponentToPlayer / distanceToPlayer;
         final float YUnitToPlayer = YComponentToPlayer / distanceToPlayer;
@@ -509,9 +600,8 @@ public final class SimpleCharacter extends Character implements NPC{
         //到攻击对象的距离（的平方）
         float distanceToAtk = distanceToPlayer * distanceToPlayer;
 
-        //指向攻击对象的向量
-        float XComponentToAtk = XComponentToPlayer;
-        float YComponentToAtk = YComponentToPlayer;
+        float atkX = environment.getPlayerX();
+        float atkY = environment.getPlayerY();
 
         //遍历攻击对象，获得最近的攻击对象的距离以及坐标
         //如果不存在攻击对象，则以玩家的距离和坐标代替
@@ -525,30 +615,13 @@ public final class SimpleCharacter extends Character implements NPC{
             final float l = dx * dx + dy * dy;
             if (l < distanceToAtk) {
                 distanceToAtk = l;
-                XComponentToAtk = dx;
-                YComponentToAtk = dy;
+                atkX = atk.getX();
+                atkY = atk.getY();
             }
         }
-        //到攻击对象的距离
-        distanceToAtk = (float) Math.sqrt(distanceToAtk);
-        //}
-        /*else{
-            distanceToAtk = distanceToPlayer;
-            XComponentToAtk = XComponentToPlayer;
-            YComponentToAtk = YComponentToPlayer;
-        }*/
-
-        //攻击到玩家的距离
-        float distanceFromAtkToPlayer = (float) Math.sqrt
-                ((XComponentToAtk - XComponentToPlayer) * (XComponentToAtk - XComponentToPlayer) + (YComponentToAtk - YComponentToPlayer) * (YComponentToAtk - YComponentToPlayer));
 
         //旋转角
         rotation = (float) (90 + Math.acos((double) XUnitToPlayer) * 180 / Math.PI * (YUnitToPlayer < 0 ? -1 : 1));
-
-        //正切值
-        double tan = YUnitToPlayer / XUnitToPlayer;
-        //射击角度
-        double rotate = XUnitToPlayer < 0 ? Math.atan(tan) + 0.5 * Math.PI : Math.atan(tan) + 1.5 * Math.PI;
 
         //获取bot所处的区块
         Line[] blockOfLines = environment.getBlockOfLines(x, y);
@@ -558,19 +631,67 @@ public final class SimpleCharacter extends Character implements NPC{
         if (delayTimer >= atkDelay) {
             delayTimer -= atkDelay;
             //将AttackObject(Hostile)置于舞台
-            GeneralPolygonAttack atkObj = new GeneralPolygonAttack(stage);
-            atkObj.initialize(this, new float[]{x - 6, x + 6, x + 6, x - 6}, new float[]{y - 14, y - 14, y + 14, y + 14},
-                    500*XUnitToPlayer, 500*YUnitToPlayer, rotate, 50 * getAtk(), 0, 0xFFFF0000);//TODO:NPC攻击的能量暂时为0
+            GeneralLineAttack atkObj = new GeneralLineAttack(stage);
+            atkObj.initialize(this, x, y, XUnitToPlayer, YUnitToPlayer, 500, 50 * getAtk(), 0, 30, 0xFFFF0000);//TODO:NPC攻击的能量暂时为0
             stage.addAtkHostile(atkObj);
         }
 
+        if (defended() == null) {
+
+            Character[] hostiles = stage.sortHostilesByDistance(this.x, this.y);
+            Character hostile = null;
+
+            for (int i = 1; i < hostiles.length; i++) {
+                if (hostiles[i].canBeDefended() && hostiles[i].defender() == null) {
+                    hostile = hostiles[i];
+                    break;
+                }
+            }
+
+            defend(hostile);
+        }
+
+        /**
+         * lineToPlayer: Ax + By + C = 0;
+         */
+        MyLine lineToPlayer = getLine(this.x, this.y, environment.getPlayerX(), environment.getPlayerY());
+        MyLine perpendicularToPlayer = lineToPlayer.perpendicular(this.x, this.y);
+
+        // offsetToLine
+        float offsetAtkToLine = lineToPlayer.offset(atkX, atkY);
+        //       Log.e("DefenceCharacter", offsetAtkToLine + "");
+        float offsetDefenceToLine = 65535;
+        float offsetDefenceToPerpendicular = 65535;
+
+        if (defended() != null) {
+            float defenceX = defended().getX();
+            float defenceY = defended().getY();
+
+            offsetDefenceToLine = lineToPlayer.offset(defenceX, defenceY);
+            offsetDefenceToPerpendicular = perpendicularToPlayer.offset(defended().getX(), defended().getY());
+
+        }
+
+        /**
+         * NetInput[0]: distanceToPlayer domain:[-1,1];
+         * NetInput[1]: offsetToAtk of lineToPlayer domain[-1,1];
+         * NetInput[2]: offsetToDefence of lineToPlayer domain[-1,1];
+         * NetInput[3]: offsetDefenceToPerpendicular domain[-1,1];
+         */
+        NetInputs[0] = (distanceToPlayer - minDistanceFromPlayer) / minDistanceFromPlayer;
+        NetInputs[1] = offsetAtkToLine / avoidSensitivity;
+        NetInputs[2] = offsetDefenceToLine / defenceSensitivity;
+        NetInputs[3] = offsetDefenceToPerpendicular /  distanceSensitivity;
+
+        for (int i = 0; i < NetInputs.length; i++) {
+            if (NetInputs[i] < -1) NetInputs[i] = -1;
+            if (NetInputs[i] > 1) NetInputs[i] = 1;
+        }
+
+        //      Log.e("DefenceCharacter", offsetAtkToLine + "_" + offsetDefenceToLine);
+
         //从网络获取下一个行动
-        char action = GetActionFromNetwork(XComponentToPlayer, YComponentToPlayer,
-                XComponentToAtk, YComponentToAtk,
-                distanceToPlayer,
-                distanceToAtk,
-                XUnitToPlayer, YUnitToPlayer,
-                blockOfLines);
+        char action = GetActionFromNetwork(NetInputs);
 
         if (action == 0) {
             vx -= vx * deltaTime * 10;
@@ -585,38 +706,20 @@ public final class SimpleCharacter extends Character implements NPC{
                     vx += -XUnitToPlayer * getV();
                     vy += -YUnitToPlayer * getV();
                     break;
-            }
-
-            switch (action & 0xC) {
-                case 4:
-                    vx += -YUnitToPlayer * getV();
-                    vy += XUnitToPlayer * getV();
-                    break;
-                case 8:
-                    vx += YUnitToPlayer * getV();
-                    vy += -XUnitToPlayer * getV();
-                    break;
+                default:
+                    switch (action & 0xC) {
+                        case 4:
+                            vx += -YUnitToPlayer * getV();
+                            vy += XUnitToPlayer * getV();
+                            break;
+                        case 8:
+                            vx += YUnitToPlayer * getV();
+                            vy += -XUnitToPlayer * getV();
+                            break;
+                    }
             }
         }
 
-        //switch on the action
-        /*switch(action) {
-            case (char) 1:
-                vx += XUnitToPlayer * v;vy += YUnitToPlayer * v;break;
-            case (char) 2:
-                vx += -XUnitToPlayer * v;vy += -YUnitToPlayer * v;break;
-            case (char) 3:
-                vx += -YUnitToPlayer * v;vy += XUnitToPlayer * v;break;
-            case (char) 4:
-                vx += YUnitToPlayer * v;vy += -XUnitToPlayer * v;break;
-            default:
-                //vx *= 0.5;//vy *= 0.5;break;
-        }*/
-
-        //add in "gravity"
-        //vx += XUnitToPlayer * 50;//vy += XUnitToPlayer * 50;
-
-        //clamp the velocity
         int min = -getV();
         int max = getV();
         float length = (float) Math.sqrt(vx * vx + vy * vy);
@@ -642,74 +745,29 @@ public final class SimpleCharacter extends Character implements NPC{
 
         //TODO: 适应性函数
         liveTime++;
-        distanceToPlayer -= r + playerR;
-        distanceToAtk -= r;
-        distanceFromAtkToPlayer -= playerR;
-        if (distanceToPlayer != 0 && distanceToAtk < distanceToPlayer && distanceFromAtkToPlayer < distanceToPlayer) {
-            fitness += (distanceToAtk / distanceToPlayer) * (distanceToAtk / 300);
 
-            //TODO: 将该对象插入至排名中适当的位置
-            rank.remove(this);
-            final int l = rank.size();
-            int order;
-            for (order = 0; order < l; order++) {
-                NPC npc = rank.get(order);
-                if (fitness > npc.getFitness())
-                    break;
-            }
-            if (order < 3) {
-                rank.add(order, this);
-                if (rank.size() > 3) {
-                    rank.remove(3);
-                }
-            }
+        if (defended() != null) {
+
+            double temp1 = NetInputs[2];
+            double temp2 = NetInputs[3];
+            if (temp1 < 0) temp1 = -temp1;
+            if (temp2 < 0) temp2 = 0;
+
+            temp2 = 0.5 - temp2;
+            if (temp2 < 0) temp2 = -temp2;
+
+            fitness = (float)((1 - temp1) * (1 - temp2));
         }
     }
 
     /**
      * 更新ANN并返回网络所选择的动作作为输出
      */
-    private char GetActionFromNetwork(float XComponentToPlayer, float YComponentToPlayer,
-                                      float XComponentToAtk, float YComponentToAtk,
-                                      float distanceToPlayer,
-                                      float distanceToAtk,
-                                      float ux, float uy,
-                                      Line[] blockOfLines) {
+    private char GetActionFromNetwork(double[] netInputs) {
         //储存网络的输出
         double[] outputs;
 
-        NetInputs[0] = (distanceToPlayer - 300) / 300;
-        NetInputs[1] = (distanceToAtk - 300) / 300;
-        NetInputs[2] = (Math.atan2(YComponentToAtk, XComponentToAtk) - Math.atan2(YComponentToPlayer, XComponentToPlayer)) / Math.PI;
-
-        //触角向量
-        int[] sensorsVector = new int[]{
-                (int) (x + ux * 128), (int) (y + uy * 128),
-                (int) (x - ux * 128), (int) (y - uy * 128),
-                (int) (x - uy * 128), (int) (y + ux * 128),
-                (int) (x + uy * 128), (int) (y - ux * 128)};
-
-        //bot与地图碰撞检测
-        float[] output = new float[2];
-        for (int i = 0; i < 4; i++) {
-            for (Line line : blockOfLines) {
-                //各个方向的触觉与边的碰撞检测
-                boolean res = lineLine(output, line.getPoint1().x, line.getPoint1().y, line.getPoint2().x, line.getPoint2().y, (int) x, (int) y, sensorsVector[i * 2], sensorsVector[i * 2 + 1]);
-                //计算触觉
-                if (res) {
-                    //指向碰撞点的向量
-                    float XComponentToLine = output[0] - this.x;
-                    float YComponentToLine = output[1] - this.y;
-                    //到碰撞点的距离
-                    float distanceToLine = (float) Math.sqrt
-                            (XComponentToLine * XComponentToLine + YComponentToLine * YComponentToLine);
-                    //触觉
-                    NetInputs[3 + i] = 1 - (distanceToLine - r) / (128 - r);
-                } else {
-                    NetInputs[3 + i] = -1;
-                }
-            }
-        }
+  //      Log.e("DefenceCharacter", NetInputs[3]+ "_" + NetInputs[4]);
 
         //输入网络得到输出
         outputs = neuralNet.Update(NetInputs);
