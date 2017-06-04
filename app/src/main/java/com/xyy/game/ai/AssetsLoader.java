@@ -90,6 +90,7 @@ public class AssetsLoader implements Runnable {
 
         Assets.player = g.newPixmap("player.png", Graphics.PixmapFormat.ARGB4444);
         Assets.hostile = g.newPixmap("hostile.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.defenceHostile = g.newPixmap("hostile_defence.png", Graphics.PixmapFormat.ARGB4444);
         Assets.NPCProducer = g.newPixmap("NPCProducer.png", Graphics.PixmapFormat.ARGB4444);
         Assets.map00Bg = g.newPixmap("map00_bg.png", Graphics.PixmapFormat.RGB565);
         Assets.ranks = g.newPixmap("ranks.png", Graphics.PixmapFormat.ARGB4444);

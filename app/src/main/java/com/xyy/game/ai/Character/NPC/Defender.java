@@ -29,16 +29,4 @@ public interface Defender {
      * @param defended
      */
     void onDefendedDestroyed(Defended defended);
-
-    /**
-     * X坐标
-     * @return
-     */
-    float getX();
-
-    /**
-     * Y坐标
-     * @return
-     */
-    float getY();
 }

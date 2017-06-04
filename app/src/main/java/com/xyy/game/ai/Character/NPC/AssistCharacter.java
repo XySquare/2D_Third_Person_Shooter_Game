@@ -9,43 +9,43 @@ import com.xyy.game.AStar.AStarFindPath;
 import com.xyy.game.FSM.FSMState;
 import com.xyy.game.FSM.FSMTransition;
 import com.xyy.game.FSM.FiniteStateMachine;
-import com.xyy.game.ai.*;
+import com.xyy.game.ai.Assets;
 import com.xyy.game.ai.Attack.AtkInfo;
 import com.xyy.game.ai.Attack.Attack;
 import com.xyy.game.ai.Attack.EnergyBox;
 import com.xyy.game.ai.Attack.GeneralCircleAttack;
-import com.xyy.game.ai.Attack.GeneralLineAttack;
 import com.xyy.game.ai.Attack.LifeBox;
+import com.xyy.game.ai.Attack.SpeedUpCircleAssist;
 import com.xyy.game.ai.Character.Character;
 import com.xyy.game.ai.Effect.MultSquareEffect;
+import com.xyy.game.ai.Environment;
+import com.xyy.game.ai.Stage;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.util.GeneralLine;
 import com.xyy.game.util.IntArrayList;
 import com.xyy.game.util.Line;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
- * 一个防御型角色
- * 2017/4/14
+ * Created by berryice on 2017/4/20.
  */
-public final class DefenceCharacter extends Character implements NPC, Defender{
+
+public class AssistCharacter extends Character implements NPC{
 
     public static final Data sData = new Data() {
         public double[][] GetInputSet() {
-            return new double[][]{{-0.2,0,0,0.5}, {0,0,0,0.5}, {0.2,0,0,0.5},
-                    {0,0,-1,0.5}, {0,0,-0.1,0.5}, {0,0,0.1,0.5},{0,0,1,0.5},
-                    {0,-1,-1,0.5}, {0,-0.1,-1,0.5}, {0,0.1,-1,0.5}, {0,1,-1,0.5},
-                    {0,-1,-1,0.1}, {0,-1,-1,1} };
+            return new double[][]{{-0.1,0,0}, {0,0,0}, {1,0,0}, {0,-1,0}, {0,1,0}, {0,0,-1}, {0,0,1}};
         }
 
         public double[][] GetOutputSet() {
-            return new double[][]{{0,1,0,0}, {0,0,0,0},{1,0,0,0},
-                    {0,0,1,0}, {0,0,1,0}, {0,0,0,1}, {0,0,0,1},
-                    {0,0,0,1}, {0,0,0,1}, {0,0,1,0}, {0,0,1,0},
-                    {1,0,0,1}, {0,1,0,1}};
+            return new double[][]{{0,1,0,0}, {0,0,0,0},{1,0,0,0}, {0,0,0,1}, {0,0,1,0}, {0,0,0,1}, {0,0,1,0}};
         }
     };
+    private static final int minDistanceFromPlayer = 300;
+    private static final int avoidSensitivity = 300;
+    private static final int disperseSensitivity = 300;
 
     /**
      * x/y方向上的速度（px/s）
@@ -79,11 +79,11 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
      * 输入：到玩家的距离，到最近的攻击对象的距离，到最近的攻击对象的连线与到玩家连线的夹角（弧度）
      * 输出：前/后/左/右
      */
-    private NeuralNet neuralNet = new NeuralNet(4, 4, 6);
+    private NeuralNet neuralNet = new NeuralNet(3, 4, 6);
     /**
      * 缓存网络的输入
      */
-    private double[] NetInputs = new double[4];
+    private double[] NetInputs = new double[3];
     /**
      * A*寻路
      */
@@ -111,26 +111,19 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
 
     private boolean shouldAddBuff;
 
-    private static final int minDistanceFromPlayer = 250;
-    private static final int distanceSensitivity = 1000;
-    private static final int avoidSensitivity = 200;
-    private static final int defenceSensitivity = 50;
-
-    private Defended mDefended;
-
     private ArrayList<Character> hostileList;
 
-    public DefenceCharacter(final Stage stage) {
+    public AssistCharacter(Stage stage) {
         super(stage);
-        this.r = 85;
+        this.r = 75;
         setV(200);
-        setMaxHp(100);
-        setHp(100);
-        setAtk(1);
+        setMaxHp(20);
+        setHp(20);
+
         /**
          * 初始化状态表
          */
-        FSMState[] states = new FSMState[]{new State_Active(), new State_FindPath()};
+        FSMState[] states = new FSMState[]{new AssistCharacter.State_Active(), new AssistCharacter.State_FindPath()};
         /**
          * 初始化有限状态机
          */
@@ -201,54 +194,9 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
 
         vx = vy = 0;
 
-        atkDelay = (float) (2 + Math.random());
+        atkDelay = (float) (15 + 5 * Math.random());
 
         shouldAddBuff = false;
-    }
-
-    @Override
-    public Defended defended(){
-        return mDefended;
-    }
-
-    @Override
-    public void defend(Defended defended) {
-        if (defended == null) {
-            return;
-        }
-
-        unDefend(mDefended);
-
-        mDefended = defended;
-
-        defended.onDefendedBy(this);
-    }
-
-    @Override
-    public void unDefend(Defended defended) {
-        if (mDefended == defended) {
-            mDefended = null;
-
-            if (defended != null) {
-                defended.onLostDefenceBy(this);
-            }
-        }
-    }
-
-    @Override
-    public void onDefendedDestroyed(Defended defended) {
-        if (defended == null) {
-            return;
-        }
-
-        if (mDefended == defended) {
-            mDefended = null;
-        }
-    }
-
-    @Override
-    public boolean canBeDefended() {
-        return false;
     }
 
     /**
@@ -310,7 +258,7 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
         /**
          * 初始化状态转换表
          */
-        private FSMTransition[] transitions = new FSMTransition[]{new Active2FindPath()};
+        private FSMTransition[] transitions = new FSMTransition[]{new AssistCharacter.Active2FindPath()};
 
         @Override
         public void onEnter() {
@@ -349,7 +297,7 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
         private FSMTransition[] transitions;
 
         private State_FindPath() {
-            transitions = new FSMTransition[]{new FindPath2Active()};
+            transitions = new FSMTransition[]{new AssistCharacter.FindPath2Active()};
         }
 
         @Override
@@ -443,26 +391,13 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
     }
 
     @Override
-    public void present(Graphics g, float offsetX, float offsetY) {
-        g.drawPixmapDegree(Assets.defenceHostile, this.x - offsetX, this.y - offsetY, rotation);
-    }
-
-    @Override
-    protected final void updateInner(float deltaTime, Environment environment) {
+    protected void updateInner(float deltaTime, Environment environment) {
         FSM.update(deltaTime, environment);
     }
 
     @Override
-    public void onHitCharacter(Character character, AtkInfo attack) {
-
-    }
-
-    @Override
-    public void onHitByCharacter(Character character, AtkInfo attack) {
-        if (getHp() <= 0 && shouldAddBuff) {
-            character.addBuff(0);
-        }
-        character.accessEnergy(attack.getEnergy() * 2);//返还2被能量
+    public void present(Graphics g, float offsetX, float offsetY) {
+        g.drawPixmapDegree(Assets.hostile, this.x - offsetX, this.y - offsetY, rotation);
     }
 
     @Override
@@ -499,12 +434,21 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
     }
 
     @Override
-    public void onChildrenDestroyed(NPC child) {
-        //No Children, do nothing...
+    public void onHitCharacter(Character character, AtkInfo attack) {
+
     }
 
-    public int GetNumberOfWeights() {
-        return neuralNet.GetNumberOfWeights();
+    @Override
+    public void onHitByCharacter(Character character, AtkInfo attack) {
+        if (getHp() <= 0 && shouldAddBuff) {
+            character.addBuff(0);
+        }
+        character.accessEnergy(attack.getEnergy() * 2);//返还2被能量
+    }
+
+    @Override
+    public boolean canBeDefended() {
+        return true;
     }
 
     @Override
@@ -527,8 +471,12 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
         return liveTime;
     }
 
-    private void active(float deltaTime, Environment environment) {
+    @Override
+    public void onChildrenDestroyed(NPC child) {
 
+    }
+
+    private void active(float deltaTime, Environment environment) {
         start = environment.getIndex(x, y);
         //Log.e(getName(),"x/y = "+x+" / "+y);
         end = environment.getPlayerIndex();
@@ -556,8 +504,10 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
         //到攻击对象的距离（的平方）
         float distanceToAtk = distanceToPlayer * distanceToPlayer;
 
-        float atkX = environment.getPlayerX();
-        float atkY = environment.getPlayerY();
+        float playerX = environment.getPlayerX();
+        float playerY = environment.getPlayerY();
+        float atkX = playerX;
+        float atkY = playerY;
 
         //遍历攻击对象，获得最近的攻击对象的距离以及坐标
         //如果不存在攻击对象，则以玩家的距离和坐标代替
@@ -566,10 +516,14 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
         //if(len>0) {
         for (int i = 0; i < len; i++) {
             Attack atk = playerAtkList.get(i);
-            final float dx = atk.getX() - this.x;
-            final float dy = atk.getY() - this.y;
+            final float dxAtk2Player = playerX - atk.getX();
+            final float dyAtk2Player = playerY - atk.getY();
+            final float dx2Player = playerX - this.x;
+            final float dy2Player = playerY - this.y;
+            final float dx = this.x - atk.getX();
+            final float dy = this.y - atk.getY();
             final float l = dx * dx + dy * dy;
-            if (l < distanceToAtk) {
+            if (l < distanceToAtk && dxAtk2Player * dxAtk2Player + dyAtk2Player * dyAtk2Player < dx2Player * dx2Player + dy2Player * dy2Player) {
                 distanceToAtk = l;
                 atkX = atk.getX();
                 atkY = atk.getY();
@@ -587,59 +541,49 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
         if (delayTimer >= atkDelay) {
             delayTimer -= atkDelay;
             //将AttackObject(Hostile)置于舞台
-            GeneralLineAttack atkObj = new GeneralLineAttack(stage);
-            atkObj.initialize(this, x, y, XUnitToPlayer, YUnitToPlayer, 500, 50 * getAtk(), 0, 30, 0xFFFF0000);//TODO:NPC攻击的能量暂时为0
-            stage.addAtkHostile(atkObj);
+            SpeedUpCircleAssist atkObj = new SpeedUpCircleAssist(stage);
+            atkObj.initialize(this, x, y, XUnitToPlayer, YUnitToPlayer, 50, 0, 300);//TODO:NPC攻击的能量暂时为0
+            stage.addAtkPlayer(atkObj);
         }
 
-        if (defended() == null) {
-            Character hostile = null;
-            Character c = hostileList.get(0);
-            float minDistance = distancePoint2Point(this.x, this.y, c.getX(), c.getY());
+        Character near = null;
+        Character c = hostileList.get(0);
+        float minDistance = distancePoint2Point(this.x, this.y, c.getX(), c.getY());
 
-            for (int i = 1; i < hostileList.size(); i++) {
-                c = hostileList.get(i);
+        for (int i = 1; i < hostileList.size(); i++) {
+            c = hostileList.get(i);
 
-                if (c.canBeDefended() && c.defender() == null) {
-                    float distance = distancePoint2Point(this.x, this.y, c.getX(), c.getY());
+            if (!(c == this) && !c.getName().startsWith("NPCProducer") && !c.getName().startsWith("DefenceCharacter")) {
+                float distance = distancePoint2Point(this.x, this.y, c.getX(), c.getY());
 
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        hostile = c;
-                    }
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    near = c;
                 }
             }
-
-            defend(hostile);
         }
 
-        //lineToPlayer: Ax + By + C = 0;
-        GeneralLine lineToPlayer = GeneralLine.CreateLine(this.x, this.y, environment.getPlayerX(), environment.getPlayerY());
-        GeneralLine perpendicularToPlayer = lineToPlayer.perpendicular(this.x, this.y);
+        GeneralLine lineToPlayer = GeneralLine.CreateLine(this.x, this.y, playerX, playerY);
 
         float offsetAtkToLine = lineToPlayer.offset(atkX, atkY);
-        float offsetDefenceToLine = 65535;
-        float offsetDefenceToPerpendicular = 65535;
+        if (offsetAtkToLine > avoidSensitivity) offsetAtkToLine = avoidSensitivity;
+        else if (offsetAtkToLine < -avoidSensitivity) offsetAtkToLine = -avoidSensitivity;
 
-        if (defended() != null) {
-            float defenceX = defended().getX();
-            float defenceY = defended().getY();
+        if (atkX == playerX && atkY == playerY) offsetAtkToLine = 0;
+        else if (offsetAtkToLine > 0) offsetAtkToLine = 1 - offsetAtkToLine / avoidSensitivity;
+        else if (offsetAtkToLine < 0) offsetAtkToLine = -1 - offsetAtkToLine / avoidSensitivity;
 
-            offsetDefenceToLine = lineToPlayer.offset(defenceX, defenceY);
-            offsetDefenceToPerpendicular = perpendicularToPlayer.offset(defended().getX(), defended().getY());
+        float offsetNearToLine = 0;
+        if (near != null) offsetNearToLine = lineToPlayer.offset(near.getX(), near.getY());
+        if (offsetNearToLine < -disperseSensitivity) offsetNearToLine = -disperseSensitivity;
+        else if (offsetNearToLine > disperseSensitivity) offsetNearToLine = disperseSensitivity;
 
-        }
+        if (offsetNearToLine < 0) offsetNearToLine = -1 - offsetNearToLine / disperseSensitivity;
+        else if (offsetNearToLine > 0) offsetNearToLine = 1 - offsetNearToLine / disperseSensitivity;
 
-        /**
-         * NetInput[0]: distanceToPlayer domain:[-1,1];
-         * NetInput[1]: offsetToAtk of lineToPlayer domain[-1,1];
-         * NetInput[2]: offsetToDefence of lineToPlayer domain[-1,1];
-         * NetInput[3]: offsetDefenceToPerpendicular domain[-1,1];
-         */
         NetInputs[0] = (distanceToPlayer - minDistanceFromPlayer) / minDistanceFromPlayer;
-        NetInputs[1] = offsetAtkToLine / avoidSensitivity;
-        NetInputs[2] = offsetDefenceToLine / defenceSensitivity;
-        NetInputs[3] = offsetDefenceToPerpendicular /  distanceSensitivity;
+        NetInputs[1] = offsetAtkToLine;
+        NetInputs[2] = offsetNearToLine;
 
         for (int i = 0; i < NetInputs.length; i++) {
             if (NetInputs[i] < -1) NetInputs[i] = -1;
@@ -701,19 +645,6 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
 
         //TODO: 适应性函数
         liveTime++;
-
-        if (defended() != null) {
-
-            double temp1 = NetInputs[2];
-            double temp2 = NetInputs[3];
-            if (temp1 < 0) temp1 = -temp1;
-            if (temp2 < 0) temp2 = 0;
-
-            temp2 = 0.5 - temp2;
-            if (temp2 < 0) temp2 = -temp2;
-
-            fitness = (float)((1 - temp1) * (1 - temp2));
-        }
     }
 
     /**
@@ -723,7 +654,7 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
         //储存网络的输出
         double[] outputs;
 
-  //      Log.e("DefenceCharacter", NetInputs[3]+ "_" + NetInputs[4]);
+        //      Log.e("DefenceCharacter", NetInputs[3]+ "_" + NetInputs[4]);
 
         //输入网络得到输出
         outputs = neuralNet.Update(NetInputs);
@@ -749,19 +680,19 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
             }
         }*/
 
-        if ((outputs[0] > BiggestSoFar) && (outputs[0] > 0.9)) {
+        if ((outputs[0] > BiggestSoFar) && (outputs[0] > 0.5)) {
             action = 1;
             BiggestSoFar = outputs[0];
         }
-        if ((outputs[1] > BiggestSoFar) && (outputs[1] > 0.9)) {
+        if ((outputs[1] > BiggestSoFar) && (outputs[1] > 0.5)) {
             action = 2;
         }
         BiggestSoFar = 0;
-        if ((outputs[2] > BiggestSoFar) && (outputs[2] > 0.9)) {
+        if ((outputs[2] > BiggestSoFar) && (outputs[2] > 0.5)) {
             action |= 4;
             BiggestSoFar = outputs[2];
         }
-        if ((outputs[3] > BiggestSoFar) && (outputs[3] > 0.9)) {
+        if ((outputs[3] > BiggestSoFar) && (outputs[3] > 0.5)) {
             action &= 0xB;
             action |= 8;
         }

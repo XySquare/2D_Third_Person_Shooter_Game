@@ -61,7 +61,7 @@ public class Assets {
     //玩家
     public static Pixmap player;
     //敌人
-    public static Pixmap hostile;
+    public static Pixmap hostile, defenceHostile;
     //
     public static Pixmap NPCProducer;
 

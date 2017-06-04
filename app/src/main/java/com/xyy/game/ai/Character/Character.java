@@ -14,12 +14,13 @@ import com.xyy.game.ai.Stage;
 import com.xyy.game.framework.Graphics;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 玩家与怪物的基类
  * Created by ${XYY} on ${2015/3/5}.
  */
-public abstract class Character extends GameObject implements Defended{
+public abstract class Character extends GameObject implements Defended {
     //移动速度
     public static final char V = 0;
     //攻击力
@@ -88,6 +89,7 @@ public abstract class Character extends GameObject implements Defended{
         buffManager = new BuffManager(primitiveProperty,currentProperty);
 
         timerRecovery = 0;
+
     }
 
     public void initialize(@NonNull NPC parent, String name, int x, int y){

@@ -1,20 +1,23 @@
 package com.xyy.game.ai.Attack;
 
-
 import android.graphics.RadialGradient;
 import android.graphics.Shader;
 import android.support.annotation.NonNull;
 
-import com.xyy.game.ai.*;
+import com.xyy.game.ai.Buff;
 import com.xyy.game.ai.Character.Character;
+import com.xyy.game.ai.Stage;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.util.Line;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 一个简单的圆形范围攻击
- * Created by ${XYY} on ${2016/7/31}.
+ * Created by berryice on 2017/4/21.
  */
-public final class GeneralCircleAttack extends Attack {
+
+public final class SpeedUpCircleAssist extends Attack {
 
     private float vx;
     private float vy;
@@ -28,13 +31,15 @@ public final class GeneralCircleAttack extends Attack {
     //计时器
     private float timer;
 
+    private List<Character> mAssistedList = new ArrayList<>();
+
     private RadialGradient radialGradient;
 
-    public GeneralCircleAttack(Stage stage) {
-        super((char)1, stage);
+    public SpeedUpCircleAssist(Stage stage) {
+        super((char)3, stage);
     }
 
-    public void initialize(@NonNull Character parent,float x, float y, float dx,float dy,int v,int dam,int r){
+    public void initialize(@NonNull Character parent, float x, float y, float dx, float dy, int v, int dam, int r){
         this.parent = parent;
         //ux = dx;uy=dy;
         damage = dam;
@@ -47,7 +52,7 @@ public final class GeneralCircleAttack extends Attack {
         timer = 0;
         isDead = false;
         //坐标必须为(0,0),半径应与攻击半径一致
-        radialGradient = new RadialGradient(0,0,r,0x00FF0000,0xFFFF0000, Shader.TileMode.CLAMP);
+        radialGradient = new RadialGradient(0,0,r,0x0000FFFF,0x7700FFFF, Shader.TileMode.CLAMP);
     }
 
     @Override
@@ -58,7 +63,7 @@ public final class GeneralCircleAttack extends Attack {
         this.y+=dvy;
         //攻击将持续0.2秒
         timer+=deltaTime;
-        if(timer>=0.2){
+        if(timer>=1){
             isDead = true;//等待被移除
         }
     }
@@ -66,7 +71,7 @@ public final class GeneralCircleAttack extends Attack {
     @Override
     public void present(Graphics g, float offsetX, float offsetY) {
         //g.drawPixmapDegree(Assets.circleAtk, x - offsetX, y - offsetY, 0f);
-        g.drawCircle(x-offsetX,y-offsetY,radius*timer*5,radialGradient,timer*5);
+        g.drawCircle(x-offsetX,y-offsetY,radius*timer,radialGradient,timer);
     }
 
     @Override
@@ -81,12 +86,17 @@ public final class GeneralCircleAttack extends Attack {
         boolean res = ((x-character.getX())*(x-character.getX())
                 +(y-character.getY())*(y-character.getY()))
                 <= (radius+character.getR())*(radius+character.getR());
-        if(res){
-            character.accessHp_Defence(-damage);//造成伤害
+        if(res && !mAssistedList.contains(character)){
+            assist(character);
+            mAssistedList.add(character);
             //注意，这里没进行“只进行一次攻击”的设定
             //如果需要，可增加个boolean标志
         }
         return res;
+    }
+
+    private void assist(Character character) {
+        character.addBuff(Buff.SPEED_UP);
     }
 
     @Override

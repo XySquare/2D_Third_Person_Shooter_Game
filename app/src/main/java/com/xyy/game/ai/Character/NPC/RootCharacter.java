@@ -50,7 +50,7 @@ public final class RootCharacter extends Character implements NPC {
 
     private NeuralNet mNeuralNet;
 
- //   public static double[] sWeights;
+    private static double[] sWeights;
 
     public RootCharacter(Stage stage) {
         super(stage);
@@ -65,14 +65,14 @@ public final class RootCharacter extends Character implements NPC {
 
         npcProducer = new NPCProducer[10];
 
-   //     mNeuralNet = new NeuralNet(4, 4, 6);
-   //     mNeuralNet.Train(DefenceCharacter.sData);
+        mNeuralNet = new NeuralNet(3, 4, 6);
+        mNeuralNet.Train(AssistCharacter.sData);
 
-   //     sWeights = mNeuralNet.GetWeights();
+        sWeights = mNeuralNet.GetWeights();
 
         for(int i=0;i<npcProducer.length;i++){
             npcProducer[i] = new NPCProducer(stage);
-    //        npcProducer[i].setWeights(sWeights);
+            npcProducer[i].setWeights(sWeights);
         }
 
         iPoint[] points = new iPoint[]{new iPoint(415,2584),new iPoint(613,2384),

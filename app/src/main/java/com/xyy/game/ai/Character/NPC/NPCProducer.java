@@ -24,7 +24,6 @@ public final class NPCProducer extends Character implements NPC {
 
     private float timer;
 
- //   private NeuralNet mNeuralNet;
     private double[] weights;
 
     public NPCProducer(Stage stage) {
@@ -33,9 +32,6 @@ public final class NPCProducer extends Character implements NPC {
         //初始化基因池
         genPool = GameDataManager.getGenPool("Data.dat");
         genPool_Defence = GameDataManager.getGenPool("data_defence.dat");
-
-    //    mNeuralNet = new NeuralNet(5, 4, 6);
-    //    mNeuralNet.Train(DefenceCharacter.sData);
 
         this.r = 100;
         setMaxHp(500);
@@ -101,20 +97,27 @@ public final class NPCProducer extends Character implements NPC {
             timer += deltaTime;
         //随机生成敌人（调试）
         if (Math.random() > 0.99 && childrenCounter < 3) {
-            if (Math.random() > 0.5) {
+            double rand = Math.random();
+            if (rand > 0.66) {
                 SimpleCharacter simpleCharacter = new SimpleCharacter(stage);//暂时没使用回收池
                 simpleCharacter.initialize(this, "SimpleCharacter" + childrenCounter, (int) x, (int) y);
                 double[] gen = genPool.get();
                 simpleCharacter.putWeights(gen);
                 stage.addHostile(simpleCharacter);
                 stage.addToTrackList(simpleCharacter);
-            } else {
+            } else if (rand > 0.33){
                 DefenceCharacter defenceCharacter = new DefenceCharacter(stage);
                 defenceCharacter.initialize(this, "DefenceCharacter" + childrenCounter, (int) x, (int) y);
                 defenceCharacter.putWeights(genPool_Defence.get());
        //         defenceCharacter.putWeights(weights);
                 stage.addHostile(defenceCharacter);
                 stage.addToTrackList(defenceCharacter);
+            } else {
+                AssistCharacter assistCharacter = new AssistCharacter(stage);
+                assistCharacter.initialize(this, "AssistCharacter" + childrenCounter, (int)x, (int)y);
+                assistCharacter.putWeights(weights);
+                stage.addHostile(assistCharacter);
+                stage.addToTrackList(assistCharacter);
             }
             childrenCounter++;
         }
@@ -132,7 +135,8 @@ public final class NPCProducer extends Character implements NPC {
         childrenCounter--;
         if (child.getName().startsWith("SimpleCharacter")) {
             genPool.inster(child.getWeights(), child.getFitness(), child.getLiveTime());
-
+        } else if (child.getName().startsWith("DefenceCharacter")) {
+            genPool_Defence.inster(child.getWeights(), child.getFitness(), child.getLiveTime());
         }
         parent.onChildrenDestroyed(child);
     }
@@ -145,4 +149,5 @@ public final class NPCProducer extends Character implements NPC {
     public boolean canBeDefended() {
         return false;
     }
+
 }
