@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PaintFlagsDrawFilter;
+import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -27,6 +28,10 @@ public final class AndroidFastRenderView extends SurfaceView implements Runnable
         this.game = game;
         this.framebuffer = framebuffer;
         this.holder = getHolder();
+        /**
+         * IMPORTANT: 设置SurfaceView的像素格式，否则图片颜色会被压缩
+         */
+        holder.setFormat(PixelFormat.RGBA_8888);
         paint = new Paint();
     }
 

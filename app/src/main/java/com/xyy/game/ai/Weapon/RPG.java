@@ -17,7 +17,7 @@ public class RPG extends Weapon {
                 10,
                 5,
                 1,
-                5000
+                new int[]{}
         );
     }
 
@@ -28,6 +28,11 @@ public class RPG extends Weapon {
             attackObject.initialize(src, src.getX(), src.getY(), dx, dy, 500, src.getAtk()*10, mEnergyCost, 30, 0xFF66CCFF);
             stage.addAtkPlayer(attackObject);
         }
+    }
+
+    @Override
+    void upGrade(int lv) {
+
     }
 
     @Override

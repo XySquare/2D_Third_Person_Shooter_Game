@@ -72,8 +72,8 @@ public class LogoScreen extends Screen {
         g.fill(0xFF000000);
         final int color = (int)alpha<<24 | 0xFFFFFF;
         g.drawText("Present by",560,320,color,35);
-        g.drawText("Luo Qin",580,370,color,35);
-        g.drawText("Xu YiYang",560,410,color,35);
+        g.drawText("Xu YiYang",580,370,color,35);
+        g.drawText("Zhou WenGuan",560,410,color,35);
         g.drawText("All Rights Reserved",510,700,color,30);
     }
 

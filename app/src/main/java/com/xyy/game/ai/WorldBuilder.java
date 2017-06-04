@@ -5,6 +5,7 @@ import android.util.Log;
 import com.xyy.game.AStar.AStarFindPath;
 import com.xyy.game.ai.Character.Character;
 import com.xyy.game.ai.Screen.GameScreen;
+import com.xyy.game.ai.Screen.UserDate;
 import com.xyy.game.ai.Weapon.Weapon;
 import com.xyy.game.framework.FileIO;
 import com.xyy.game.framework.Game;
@@ -15,7 +16,9 @@ import com.xyy.game.util.iPoint;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Stack;
+import java.util.UUID;
 
 /**
  * 根据世界数据（WorldData）初始化世界，
@@ -62,10 +65,15 @@ public class WorldBuilder implements Runnable {
 
         Log.i("WorldBuilder","World initialized.");
 
-        Weapon[] sEquippedWeapons = UserDate.sEquippedWeapons;
+        /*ArrayList<Weapon> sEquippedWeapons = new ArrayList<>();
+        List<UUID> mCurrentlyEquippedWeapons = UserDate.mCurrentlyEquippedWeapons;
+        for (int i = 0; i < mCurrentlyEquippedWeapons.size(); i++) {
+            Weapon weapon = UserDate.getWeapon(mCurrentlyEquippedWeapons.get(i));
+            sEquippedWeapons.add(weapon);
+        }
         for (Weapon weapon: sEquippedWeapons) {
             weapon.loadPixmap(game.getGraphics(), Weapon.PixmapQuality.LOW);
-        }
+        }*/
 
         Log.i("WorldBuilder","UserDate initialized.");
 

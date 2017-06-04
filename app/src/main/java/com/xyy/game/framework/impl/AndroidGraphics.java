@@ -48,8 +48,8 @@ public final class AndroidGraphics implements Graphics {
         this.canvas = new Canvas(frameBuffer);
         this.paint = new Paint();
         //载入字体
-        //this.font = Typeface.createFromAsset(assets, "msyh.ttc");
-        this.font = Typeface.create("DroidSansFallback", Typeface.NORMAL);
+        this.font = Typeface.createFromAsset(assets, "OPTIAlternateThree.otf");
+        //this.font = Typeface.create("DroidSansFallback", Typeface.NORMAL);
         //设置文本字体与对齐方式
         paint.setTypeface(font);
         paint.setTextAlign(Paint.Align.LEFT);

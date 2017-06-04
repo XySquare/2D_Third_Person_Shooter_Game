@@ -117,7 +117,7 @@ public interface Graphics {
      * @param pixmap Pixmap实例
      * @param x      X坐标
      * @param y      Y坐标
-     * @param alpha  透明度
+     * @param alpha  透明度[0...255]
      */
     void drawPixmapAlpha(Pixmap pixmap, float x, float y, int alpha);
 
@@ -131,6 +131,15 @@ public interface Graphics {
      */
     void drawPixmapDegree(Pixmap pixmap, float x, float y, float degree);
 
+    /**
+     *
+     * @param pixmap
+     * @param x
+     * @param y
+     * @param ScaX
+     * @param ScaY
+     * @param alpha [0...255]
+     */
     void drawPixmapScale(Pixmap pixmap, float x, float y, float ScaX, float ScaY, int alpha);
 
     /**

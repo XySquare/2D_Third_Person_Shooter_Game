@@ -106,7 +106,7 @@ public abstract class AndroidGame extends Activity implements Game {
             graphics = new AndroidGraphicsLowQuality(getAssets(), frameBuffer);
         }else {
             frameBuffer = Bitmap.createBitmap(frameBufferWidth,
-                    frameBufferHeight, Bitmap.Config.RGB_565);
+                    frameBufferHeight, Bitmap.Config.ARGB_8888);
             graphics = new AndroidGraphics(getAssets(), frameBuffer);
         }
         //抗锯齿与位图过滤
@@ -117,11 +117,7 @@ public abstract class AndroidGame extends Activity implements Game {
         //二线性过滤
         renderView.setFilterBitmap(GameDataManager.AdvancedFilterBitmap);
         //音频接口
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {//Android API 21
-            audio = new AndroidAudio21(this);
-        } else {
-            audio = new AndroidAudio(this);
-        }
+        audio = new AndroidAudio(this);
         //输入接口
         input = new AndroidInput(this, renderView, scaleX, scaleY);
         screen = getStartScreen();

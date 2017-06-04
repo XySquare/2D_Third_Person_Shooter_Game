@@ -8,9 +8,10 @@ import com.xyy.game.ai.Effect.Effect;
 import com.xyy.game.ai.Character.*;
 import com.xyy.game.ai.Character.Character;
 import com.xyy.game.ai.Effect.PlayerShowEffect;
-import com.xyy.game.ai.Weapon.IMIDesertEagle;
-import com.xyy.game.ai.Weapon.M16A4;
+import com.xyy.game.ai.Screen.Screen_MainMenu_Repository;
+import com.xyy.game.ai.Screen.UserDate;
 import com.xyy.game.ai.Weapon.Weapon;
+import com.xyy.game.database.WeaponLab;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Pixmap;
 import com.xyy.game.util.IntArrayList;
@@ -18,6 +19,8 @@ import com.xyy.game.util.Line;
 import com.xyy.game.util.iPoint;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by ${XYY} on ${2016/5/27}.
@@ -117,7 +120,7 @@ public class Stage {
     /**
      * 玩家所持有的武器
      */
-    private Weapon[] mWeapons;
+    private ArrayList<Weapon> mWeapons;
 
     /**
      * 玩家当前所使用的武器
@@ -138,7 +141,7 @@ public class Stage {
      * Stage在GameScreen中被实例化，
      * 随后被传递给各个GameState
      */
-    public Stage(World world, GameStateManager gameStateManager) {
+    public Stage(World world, GameStateManager gameStateManager, Graphics g) {
         this.gameStateManager = gameStateManager;
 
         //获取根角色
@@ -171,7 +174,23 @@ public class Stage {
         player.addBuff(Buff.UNMOVEABLE);
 
         //玩家武器
-        mWeapons = UserDate.sEquippedWeapons;
+        WeaponLab weaponLab = WeaponLab.get();
+        mWeapons = new ArrayList<>();
+        List<UUID> mCurrentlyEquippedWeapons;
+        List<Screen_MainMenu_Repository.WeaponRecord> _mWeapons = weaponLab.getWeapons();
+        if(UserDate.mCurrentlyEquippedWeapons == null) {
+            mCurrentlyEquippedWeapons = new ArrayList<>();
+            mCurrentlyEquippedWeapons.add(_mWeapons.get(0).mUUID);
+        }
+        else{
+            mCurrentlyEquippedWeapons = UserDate.mCurrentlyEquippedWeapons;
+        }
+        for (int i = 0; i < mCurrentlyEquippedWeapons.size(); i++) {
+            Screen_MainMenu_Repository.WeaponRecord weaponRecord = weaponLab.getWeapon(mCurrentlyEquippedWeapons.get(i));
+            Weapon weapon = weaponRecord.mWeapon;
+            weapon.loadPixmap(g, Weapon.PixmapQuality.LOW);
+            mWeapons.add(weapon);
+        }
 
         setCurrentWeaponIndex(0);
 
@@ -192,7 +211,7 @@ public class Stage {
 
         if (mIsInCD) {
             mAtkDelayTimer += deltaTime;
-            float delay = mWeapons[mCurrentWeaponIndex].getAtkDelay();
+            float delay = mWeapons.get(mCurrentWeaponIndex).getAtkDelay();
             if (mAtkDelayTimer >= delay) {
                 mAtkDelayTimer -= delay;
                 mIsInCD = false;
@@ -443,7 +462,7 @@ public class Stage {
      */
     public void PlayerAttack(float dx, float dy) {
         if (!mIsInCD) {
-            mWeapons[mCurrentWeaponIndex].attack(this, player, dx, dy);
+            mWeapons.get(mCurrentWeaponIndex).attack(this, player, dx, dy);
             mIsInCD = true;
         }
     }
@@ -452,7 +471,7 @@ public class Stage {
      * 切换武器
      */
     private void setCurrentWeaponIndex(int index) {
-        index = (index + mWeapons.length) % mWeapons.length;
+        index = (index + mWeapons.size()) % mWeapons.size();
         if (index == mCurrentWeaponIndex) return;
         mCurrentWeaponIndex = index;
         mIsInCD = false;
@@ -464,7 +483,7 @@ public class Stage {
      */
     public Weapon nextWeapon() {
         setCurrentWeaponIndex(++mCurrentWeaponIndex);
-        return mWeapons[mCurrentWeaponIndex];
+        return mWeapons.get(mCurrentWeaponIndex);
     }
 
     /**
@@ -472,11 +491,11 @@ public class Stage {
      */
     public Weapon prevWeapon() {
         setCurrentWeaponIndex(--mCurrentWeaponIndex);
-        return mWeapons[mCurrentWeaponIndex];
+        return mWeapons.get(mCurrentWeaponIndex);
     }
 
     public Weapon getCurrentWeapon() {
-        return mWeapons[mCurrentWeaponIndex];
+        return mWeapons.get(mCurrentWeaponIndex);
     }
 
     /**

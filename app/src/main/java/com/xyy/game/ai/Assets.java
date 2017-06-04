@@ -17,11 +17,23 @@ public class Assets {
 
     public static Pixmap main_menu_top_bar;
 
-    public static Pixmap list_item_weapon, list_item_weapon_bronze, list_item_weapon_silver, list_item_weapon_gold;
+    public static Pixmap main_menu_bottom_bar_button, main_menu_bottom_bar_button_red;
 
-    public static Pixmap button_details;
+    public static Pixmap list_item_weapon, list_item_weapon_selected, list_item_weapon_bronze, list_item_weapon_silver, list_item_weapon_gold;
+
+    public static Pixmap list_item_supplies;
+
+    public static Pixmap list_item_promos;
+
+    public static Pixmap supply_medkit, supply_energy;
+
+    public static Pixmap button_details, button_details_s;
 
     public static Pixmap button_tab;
+
+    public static Pixmap dialog;
+
+    public static Pixmap case_elite, case_normal;
 
     //摇杆
     public static Pixmap padA, pad;

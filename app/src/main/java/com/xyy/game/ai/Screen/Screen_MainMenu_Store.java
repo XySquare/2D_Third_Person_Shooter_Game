@@ -1,6 +1,6 @@
 package com.xyy.game.ai.Screen;
 
-import android.util.Log;
+import android.graphics.Paint;
 
 import com.xyy.game.ai.Assets;
 import com.xyy.game.ai.Weapon.IMIDesertEagle;
@@ -19,7 +19,19 @@ import java.util.List;
  */
 
 public class Screen_MainMenu_Store extends Screen {
-    private final Weapon[] mWeapons;
+    class Item{
+        final Weapon mWeapon;
+        final int mPrice;
+
+        private Item(Weapon weapon, int price) {
+            mWeapon = weapon;
+            mPrice = price;
+        }
+    }
+    private final Item[] mItems;
+
+    private Weapon mPurchasedWeapon = null;
+    private boolean mDialogButtonPressed = false;
 
     //列表项的宽度度
     private final int ITEM_WIDTH = 437;
@@ -80,14 +92,14 @@ public class Screen_MainMenu_Store extends Screen {
         /**
          * 商店所出售的武器
          */
-        mWeapons = new Weapon[]{
-                new IMIDesertEagle(),
-                new M16A4(),
-                new RPG()
+        mItems = new Item[]{
+                new Item(new IMIDesertEagle(), 500),
+                new Item(new M16A4(),2500),
+                new Item(new RPG(),5000)
         };
 
-        for (Weapon weapon: mWeapons) {
-            weapon.loadPixmap(game.getGraphics(), Weapon.PixmapQuality.NORMAL);
+        for (Item item : mItems) {
+            item.mWeapon.loadPixmap(game.getGraphics(), Weapon.PixmapQuality.NORMAL);
         }
     }
 
@@ -131,7 +143,12 @@ public class Screen_MainMenu_Store extends Screen {
             if (event.type == Input.Touch.TOUCH_DOWN) {
                 //只允许单一输入
                 if (pointer == -1) {
-                    if (event.y > LIST_Y && event.y < LIST_Y_MAX) {
+                    if (mPurchasedWeapon != null) {
+                        if (inBounds(event,545, 63 + 472, 189, 74)) {
+                            pointer = event.pointer;
+                            mDialogButtonPressed = true;
+                        }
+                    } else if (event.y > LIST_Y && event.y < LIST_Y_MAX) {
                         pointer = event.pointer;
                         //获取按下时相对于列表左侧的横坐标偏移量
                         offsetX = listX - event.x;
@@ -150,6 +167,26 @@ public class Screen_MainMenu_Store extends Screen {
                         relativeIndex = relativeIndexX * ROW_SCREEN + relativeIndexY;
                         if (dragging || event.x < listStartX || relativeIndex > COL_SCREEN * ROW_SCREEN)
                             relativeIndex = COL_SCREEN * ROW_SCREEN;
+                    }
+                    //SETTING
+                    else if(inBounds(event,0,720-84,81,84)){
+                        game.setScreen(new SettingScreen(game));
+                    }
+                    //REPOSITORY
+                    else if(inBounds(event,81+218,720-84,218,84)){
+                        game.setScreen(new Screen_MainMenu_Repository(game));
+                    }
+                    //CAMPAIGN
+                    else if(event.x>81+4*218 && event.y>720-84){
+                        game.setScreen(new MapsSelectingScreen(game));
+                    }
+                    //SUPPLIES
+                    else if(inBounds(event,378 + 180 - 8, 68, 180, 68)){
+                        game.setScreen(new Screen_MainMenu_Store_Supplies(game));
+                    }
+                    //PROMOS
+                    else if(inBounds(event,378+180+180-16, 68, 180, 68)){
+                        game.setScreen(new Screen_MainMenu_Store_Promos(game));
                     }
                 }
             } else if (event.type == Input.Touch.TOUCH_DRAGGED) {
@@ -179,8 +216,14 @@ public class Screen_MainMenu_Store extends Screen {
                 //抬起的指针必须为初始按下的指针
                 if (pointer == event.pointer) {
                     pointer = -1;
+                    if (mPurchasedWeapon != null) {
+                        mDialogButtonPressed = false;
+                        if (inBounds(event, 545, 63 + 472, 189, 74)) {
+                            mPurchasedWeapon = null;
+                        }
+                    }
                     //当触摸区域在列表范围
-                    if (event.y > LIST_Y && event.y < LIST_Y_MAX) {
+                    else if (event.y > LIST_Y && event.y < LIST_Y_MAX) {
                             /* event.y>=listY: 处理无法拖拽时的情况，
                             * 在ITEMHEIGHT<event.y<listY时，
                             * index也会=0
@@ -199,8 +242,7 @@ public class Screen_MainMenu_Store extends Screen {
                                 //gameScreen.setState(TRANSITION);
                                 //计算成就
                                 //stage.achieve(Achievements.TELEPORT);
-                                Log.i("Store","item = "+index);
-                                game.setScreen(new Screen_MainMenu_Store_Weapon_Detail(game,mWeapons[index%mWeapons.length]));
+                                game.setScreen(new Screen_MainMenu_Store_Weapon_Detail(game, mItems[index % mItems.length]));
                             }
                         }
                         //如果列表移动速度大于5px/s，则赋予惯性
@@ -221,30 +263,60 @@ public class Screen_MainMenu_Store extends Screen {
     public void present(float deltaTime) {
         Graphics g = game.getGraphics();
 
-        g.drawPixmap(Assets.background,0,0);
+        g.drawPixmap(Assets.background, 0, 0);
 
         //顶部条
-        g.drawPixmap(Assets.main_menu_top_bar,0,0);
+        g.drawPixmap(Assets.main_menu_top_bar, 0, 0);
         //返回按钮
-        g.drawPixmap(Assets.back,22,20);
+        g.drawPixmapAlpha(Assets.back, 22, 20, 0x7F);
         //"MainMenu"文字
-        g.drawText("MAIN MENU",77,28,0xFF999999,24);
+        g.drawText("MAIN MENU", 77, 28, 0xFF999999, 24);
         //"Store"文字
-        g.drawText("[STORE]",77,53,0xFFFFFFFF,24);
+        g.drawText("[STORE]", 77, 53, 0xFFFFFFFF, 24);
+        //货币
+        g.drawText(String.valueOf(UserDate.sCurrency),1280-200,40,0xFFFFFFFF,30);
 
-        g.drawPixmap(Assets.button_tab, 378, 68, 180 ,0, 180, 68);
-        g.drawText("WEAPON",378 +38,68+24+16,0xFFFFFFFF,24);
-        g.drawPixmap(Assets.button_tab, 378+180-8, 68, 0 ,0, 180, 68);
-        g.drawText("SUPPLIES",378+180-8 +38,68+24+16,0xFFFFFFFF,24);
-        g.drawPixmap(Assets.button_tab, 378+180+180-16, 68, 0 ,0, 180, 68);
-        g.drawText("PROMOS",378+180+180-16 +38,68+24+16,0xFFFFFFFF,24);
+        g.drawPixmap(Assets.button_tab, 378, 68, 180, 0, 180, 68);
+        g.drawText("WEAPON", 378 + 90, 68 + 24 + 18, 0xFFFFFFFF, 24, Paint.Align.CENTER);
+        g.drawPixmap(Assets.button_tab, 378 + 180 - 8, 68, 0, 0, 180, 68);
+        g.drawText("SUPPLIES", 378 + 180 - 8 + 90, 68 + 24 + 18, 0xFFFFFFFF, 24, Paint.Align.CENTER);
+        g.drawPixmap(Assets.button_tab, 378 + 180 + 180 - 16, 68, 0, 0, 180, 68);
+        g.drawText("PROMOS", 378 + 180 + 180 - 16 + 90, 68 + 24 + 18, 0xFFFFFFFF, 24, Paint.Align.CENTER);
 
-        for (int i = 0; i < COL_SCREEN * ROW_SCREEN; i++) {
+        for (int i = 0; i < COL_SCREEN * ROW_SCREEN && startIndex+i < mItemNum; i++) {
             int indexX = i / ROW_SCREEN;
             int indexY = i - indexX * ROW_SCREEN;
             int x = listStartX + indexX * ITEM_WIDTH;
             int y = LIST_Y + indexY * ITEM_HEIGHT;
             item_list_present(g, x, y, startIndex + i, i == relativeIndex);
+        }
+
+        final int offsetX = 81;
+        String[] bottom_bar_text = new String[]{"STORE","REPOSITORY","","",""};
+        g.drawPixmap(Assets.main_menu_bottom_bar_button,-218+offsetX,720-84,218,0,218,84);
+        g.drawPixmap(Assets.setting,18,720-84+20);
+        for(int i=0;i<4;i++){
+            g.drawPixmap(Assets.main_menu_bottom_bar_button,offsetX+i*218,720-84,218,0,218,84);
+            g.drawText(bottom_bar_text[i],offsetX+i*218+109,720-84+36+19,0xFFFFFFFF,26, Paint.Align.CENTER);
+        }
+        g.drawPixmap(Assets.main_menu_bottom_bar_button_red,offsetX+4*218,720-84);
+        g.drawText("CAMPAIGN",offsetX+4*218+164,720-84+36+19,0xFFFFFFFF,26, Paint.Align.CENTER);
+
+        g.drawPixmap(Assets.main_menu_bottom_bar_button,offsetX,720-84,0,0,218,84);
+        g.drawText(bottom_bar_text[0],offsetX+109,720-84+36+19,0xFFFFFFFF,26, Paint.Align.CENTER);
+
+
+        if (mPurchasedWeapon != null) {
+            g.fill(0x6F000000);
+            g.drawPixmap(Assets.dialog, 231, 63);
+            g.drawText("PURCHASE SUCCEED", 640, 63 + 80, 0xFFFF5400, 42, Paint.Align.CENTER);
+            g.drawText(mPurchasedWeapon.getName(), 640, 63 + 140, 0xFFFFFFFF, 30, Paint.Align.CENTER);
+            g.drawPixmap(mPurchasedWeapon.getPixmap(), 432.5f, 292);
+            if (mDialogButtonPressed)
+                g.drawPixmap(Assets.button_details, 546, 63 + 472, 189, 0, 189, 74);
+            else
+                g.drawPixmap(Assets.button_details, 546, 63 + 472, 0, 0, 189, 74);
+            g.drawText("DONE", 640, 63 + 472 + 24 + 20, 0xFFFFFFFF, 24, Paint.Align.CENTER);
         }
         /**
          * 首先，先绘制未被按下的按钮，直至被按下的按钮之前
@@ -298,29 +370,33 @@ public class Screen_MainMenu_Store extends Screen {
     }
 
     private void item_list_present(Graphics g, int x, int y, int position, boolean pressed) {
-        Weapon weapon = mWeapons[position% mWeapons.length];
+        Item item = mItems[position % mItems.length];
 
-        Weapon.Rarity rarity = weapon.getRarity();
-        if(rarity == Weapon.Rarity.N)
+        Weapon.Rarity rarity = item.mWeapon.getRarity();
+        if (rarity == Weapon.Rarity.N)
             g.drawPixmap(Assets.list_item_weapon, x, y);
-        else if(rarity == Weapon.Rarity.R)
+        else if (rarity == Weapon.Rarity.R)
             g.drawPixmap(Assets.list_item_weapon_bronze, x, y);
-        else if(rarity == Weapon.Rarity.SR)
+        else if (rarity == Weapon.Rarity.SR)
             g.drawPixmap(Assets.list_item_weapon_silver, x, y);
-        else if(rarity == Weapon.Rarity.SSR)
+        else if (rarity == Weapon.Rarity.SSR)
             g.drawPixmap(Assets.list_item_weapon_gold, x, y);
-        g.drawRect(x+234+8, y+150-62+8, 175, 62, 0x7F000000);
-        g.drawText(String.valueOf(weapon.getPrice()),x+234+8+55, y+150-62+24+25, 0xFFFFFFFF, 24);
-        if(pressed)
-            g.drawPixmap(Assets.button_details, x+234, y+152, 189 ,0, 189, 74);
+        g.drawRect(x + 234 + 8, y + 150 - 62 + 8, 175, 62, 0x7F000000);
+        g.drawText(String.valueOf(item.mPrice), x + 234 + 8 + 65, y + 150 - 62 + 24 + 25, 0xFFFFFFFF, 24);
+        if (pressed)
+            g.drawPixmap(Assets.button_details, x + 234, y + 152, 189, 0, 189, 74);
         else
-            g.drawPixmap(Assets.button_details, x+234, y+152, 0 ,0, 189, 74);
-        g.drawText("DETAILS",x+234+46, y+152+24+20, 0xFFFFFFFF, 24);
+            g.drawPixmap(Assets.button_details, x + 234, y + 152, 0, 0, 189, 74);
+        g.drawText("DETAIL", x + 234 + 94, y + 152 + 24 + 22, 0xFFFFFFFF, 24, Paint.Align.CENTER);
 
-        g.drawPixmap(weapon.getPixmap(),x+8+6,y+8+6);
-        g.drawText(weapon.getName(),x+8+6+6,y+152+32,0xFFFFFFFF,26);
-        g.drawText("DAMAGE",x+8+6+6,y+152+32+4+24,0xFFFF5400,24);
-        g.drawText(String.valueOf(weapon.getDamage()),x+8+6+6+110,y+152+32+4+24,0xFFFF5400,24);
+        g.drawPixmap(item.mWeapon.getPixmap(), x + 8 + 6, y + 8 + 6);
+        g.drawText(item.mWeapon.getName(), x + 8 + 6 + 6, y + 152 + 32, 0xFFFFFFFF, 26);
+        g.drawText("DAMAGE "+item.mWeapon.getDamage(), x + 8 + 6 + 6, y + 152 + 32 + 4 + 24, 0xFFFF5400, 24);
+        //g.drawText(String.valueOf(item.mWeapon.getDamage()), x + 8 + 6 + 6 + 110, y + 152 + 32 + 4 + 24, 0xFFFF5400, 24);
+    }
+
+    void setResult(Weapon purchasedWeapon){
+        mPurchasedWeapon = purchasedWeapon;
     }
 
     @Override

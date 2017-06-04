@@ -40,13 +40,24 @@ public class AssetsLoader implements Runnable {
         Assets.ai = g.newPixmap("title.png", Graphics.PixmapFormat.ARGB4444);
         Assets.back= g.newPixmap("back.png", Graphics.PixmapFormat.RGB565);
         Assets.main_menu_top_bar = g.newPixmap("main_menu_top_bar.png", Graphics.PixmapFormat.RGB565);
-        Assets.list_item_weapon = g.newPixmap("list_item_weapon.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.main_menu_bottom_bar_button = g.newPixmap("main_menu_bottom_bar_button.png", Graphics.PixmapFormat.RGB565);
+        Assets.main_menu_bottom_bar_button_red = g.newPixmap("main_menu_bottom_bar_button_red.png", Graphics.PixmapFormat.RGB565);
+        Assets.list_item_weapon = g.newPixmap("list_item_weapon.png", Graphics.PixmapFormat.ARGB8888);
+        Assets.list_item_weapon_selected = g.newPixmap("list_item_weapon_selected.png", Graphics.PixmapFormat.ARGB4444);
         Assets.list_item_weapon_bronze = g.newPixmap("list_item_weapon_bronze.png", Graphics.PixmapFormat.ARGB4444);
         Assets.list_item_weapon_silver = g.newPixmap("list_item_weapon_silver.png", Graphics.PixmapFormat.ARGB4444);
         Assets.list_item_weapon_gold = g.newPixmap("list_item_weapon_gold.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.list_item_supplies = g.newPixmap("list_item_supplies.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.list_item_promos = g.newPixmap("list_item_promos.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.supply_medkit = g.newPixmap("supply_medkit.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.supply_energy = g.newPixmap("supply_energy.png", Graphics.PixmapFormat.ARGB4444);
         Assets.button_details = g.newPixmap("button_details.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.button_details_s = g.newPixmap("button_details_s.png", Graphics.PixmapFormat.ARGB4444);
         Assets.button_tab = g.newPixmap("button_tab.png", Graphics.PixmapFormat.ARGB4444);
-        Assets.background = g.newPixmap("background.png", Graphics.PixmapFormat.RGB565);
+        Assets.background = g.newPixmap("background.png", Graphics.PixmapFormat.ARGB8888);
+        Assets.dialog = g.newPixmap("dialog.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.case_elite = g.newPixmap("case_elite.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.case_normal = g.newPixmap("case_normal.png", Graphics.PixmapFormat.ARGB4444);
         state = MAINMENU_LOADED;
 
         Pixmap m1 = g.newPixmap("option1.png", Graphics.PixmapFormat.RGB565);

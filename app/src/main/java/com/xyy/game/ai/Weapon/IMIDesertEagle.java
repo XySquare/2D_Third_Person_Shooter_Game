@@ -17,7 +17,7 @@ public class IMIDesertEagle extends Weapon {
                 1,
                 1,
                 0.5f,
-                1000
+                new int[]{50}
         );
     }
 
@@ -27,6 +27,15 @@ public class IMIDesertEagle extends Weapon {
             GeneralLineAttack attackObject = new GeneralLineAttack(stage);
             attackObject.initialize(src, src.getX(), src.getY(), dx, dy, 700, src.getAtk(), 1, 30, 0xFF66CCFF);
             stage.addAtkPlayer(attackObject);
+        }
+    }
+
+    @Override
+    void upGrade(int lv) {
+        switch (lv){
+            case 2:
+                mDamage = 2;
+                break;
         }
     }
 

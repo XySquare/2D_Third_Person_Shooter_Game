@@ -14,7 +14,8 @@ import com.xyy.game.framework.Pixmap;
  */
 public class CircleButton {
     //坐标
-    private final int x,y;
+    protected final int x;
+    protected final int y;
     //宽/高
     private final int r;
     //颜色
@@ -22,7 +23,7 @@ public class CircleButton {
     //图标
     private final Pixmap ico;
     //当前半径
-    private float currentR;
+    protected float currentR;
     //当前缩放
     private float currentScale;
     //目标半径

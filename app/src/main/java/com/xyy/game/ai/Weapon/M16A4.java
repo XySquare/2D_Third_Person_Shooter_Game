@@ -17,7 +17,7 @@ public class M16A4 extends Weapon {
                 1,//Damage
                 1,//EnergyCost
                 0.2f,//AtkDelay
-                2500
+                new int[]{50,100}
         );
     }
 
@@ -27,6 +27,19 @@ public class M16A4 extends Weapon {
             GeneralLineAttack attackObject = new GeneralLineAttack(stage);
             attackObject.initialize(src, src.getX(), src.getY(), dx, dy, 700, src.getAtk(), 1, 30, 0xFF66CCFF);
             stage.addAtkPlayer(attackObject);
+        }
+    }
+
+    @Override
+    void upGrade(int lv) {
+        switch (lv){
+            case 2:
+                mDamage = 2;
+                break;
+            case 3:
+                mDamage = 1;
+                mAtkDelay = 0.1f;
+                break;
         }
     }
 

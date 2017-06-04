@@ -15,6 +15,7 @@ import java.util.List;
  * 显示游戏背景及玩法
  * Created by ${LQ} on ${2016/10/13}.
  */
+@Deprecated
 public class InfoScreen extends Screen {
 
     private CircleButton backBt;//返回按钮

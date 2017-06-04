@@ -32,7 +32,7 @@ public class GameScreen extends Screen implements GameScreenOperation, GameState
 
         worldUid = world.getUid();
 
-        Stage stage = new Stage(world, this);
+        Stage stage = new Stage(world, this, game.getGraphics());
 
         gameStates = new GameState[]{new GameState_Running(this, stage),
                 new GameState_Paused(this, stage),

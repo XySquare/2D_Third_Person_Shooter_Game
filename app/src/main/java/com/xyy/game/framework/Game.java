@@ -1,6 +1,7 @@
 package com.xyy.game.framework;
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 
 /**
  * Game接口

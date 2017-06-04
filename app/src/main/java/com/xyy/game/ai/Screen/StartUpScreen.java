@@ -27,7 +27,7 @@ public class StartUpScreen extends Screen {
 
     @Override
     public void update(float deltaTime) {
-        ArrayList<File> crashReports = new ArrayList<>(1);
+        /*ArrayList<File> crashReports = new ArrayList<>(1);
         File externalStorage = game.getFileIO().getExternalStorage();
         File[] fileList = externalStorage.listFiles();
         if(fileList != null) {
@@ -36,10 +36,10 @@ public class StartUpScreen extends Screen {
                     crashReports.add(file);
                 }
             }
-        }
-        if(crashReports.size()==0)
+        }*/
+        //if(crashReports.size()==0)
             game.setScreen(new LogoScreen(game));
-        else {
+        /*else {
             while(AssetsLoader.getState()<AssetsLoader.MAINMENU_LOADED){
                 try {
                     Thread.sleep(100);
@@ -48,7 +48,7 @@ public class StartUpScreen extends Screen {
                 }
             }
             game.setScreen(new CrashReportScreen(game, crashReports));
-        }
+        }*/
     }
 
     @Override

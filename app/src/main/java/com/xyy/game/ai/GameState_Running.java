@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.xyy.game.ai.Character.Player;
 import com.xyy.game.ai.Screen.GameScreenOperation;
+import com.xyy.game.ai.Screen.UserDate;
 import com.xyy.game.ai.Weapon.Weapon;
 import com.xyy.game.component.CircleButton;
 import com.xyy.game.component.ProcessingAnimation;
@@ -19,8 +20,83 @@ import java.util.List;
  * Created by ${XYY} on ${2015/11/20}.
  */
 public class GameState_Running extends GameState {
+    private abstract class Item{
+        final Pixmap mIco;
+        private final int mCooldown;
+
+        private int mCounter;
+        private float mCooldownTimer;
+
+        private Item(Pixmap ico, int counter, int cooldown) {
+            mIco = ico;
+            mCounter = counter;
+            mCooldown = cooldown;
+            mCooldownTimer = cooldown;
+        }
+
+        void update(float deltaTime){
+            if(mCooldownTimer < mCooldown){
+                mCooldownTimer += deltaTime;
+            }
+        }
+
+        void use(){
+            if(mCounter > 0 && mCooldownTimer >= mCooldown){
+                mCounter--;
+                mCooldownTimer = 0;
+                usage();
+            }
+        }
+
+        abstract void usage();
+
+        int getCounter() {
+            return mCounter;
+        }
+
+        float getColldownProgress(){
+            return mCooldownTimer/mCooldown;
+        }
+
+    }
+
+    private class ItemCircleButton extends CircleButton{
+        private Item mItem;
+
+        public ItemCircleButton(int x, int y, Item item) {
+            super(x, y, 46, 0x6F000000, item.mIco);
+            mItem = item;
+            initialize(0);
+        }
+
+        @Override
+        public void update(float deltaTime) {
+            super.update(deltaTime);
+            mItem.update(deltaTime);
+        }
+
+        @Override
+        public void present(Graphics g) {
+            super.present(g);
+            //绘制数字
+            g.drawText(String.valueOf(mItem.getCounter()),x + 32,y+30+18,0xFFFFFFFF,24);
+            //绘制环形进度条
+            g.drawRing(x, y, currentR-6, 360 - 360*mItem.getColldownProgress() -90, 360*mItem.getColldownProgress(), 0xFFFC560C,6);
+        }
+
+        @Override
+        public boolean isClicked(Input.Touch event) {
+            boolean isclicked;
+            if(isclicked = super.isClicked(event))
+                mItem.use();
+            return isclicked;
+        }
+    }
+
     private final SquareButton prevWeaponBt;
     private final SquareButton nextWeaponBt;
+    private final ItemCircleButton mItemMedkit;
+    private final ItemCircleButton mItemEngkit;
     //左摇杆
     private Controller controller;
     //右摇杆
@@ -38,8 +114,12 @@ public class GameState_Running extends GameState {
 
     private String mWeaponCostString;
 
-    public GameState_Running(GameScreenOperation gameScreen, Stage stage) {
+    public GameState_Running(GameScreenOperation gameScreen, final Stage stage) {
         super(gameScreen,stage);
+        //加载图片资源（由于整个GameScreen都是在单独线程中加载的，而GameState又在GameScreen中加载，所以没关系）
+        final Pixmap ico_medkit = gameScreen.getGraphics().newPixmap("ico_medkit.png", Graphics.PixmapFormat.ARGB8888);
+        final Pixmap ico_engkit = gameScreen.getGraphics().newPixmap("ico_engkit.png", Graphics.PixmapFormat.ARGB8888);
+
         controller = new Controller(150,570,100);
         atkCtrl = new Controller(1280-150,570,100);
 
@@ -57,6 +137,26 @@ public class GameState_Running extends GameState {
 
         mCurrentWeapon = stage.getCurrentWeapon();
         mWeaponCostString = String.valueOf(mCurrentWeapon.getEnergyCost());
+
+        // initialize Supply Items
+        Item[] items = new Item[]{
+                new Item(ico_medkit, UserDate.sMedkit, 15) {
+                    @Override
+                    void usage() {
+                        Player player = stage.getPlayer();
+                        player.accessHp((int) (player.getMaxHp() * 0.2));
+                    }
+                },
+                new Item(ico_engkit, UserDate.sEngkit, 15) {
+                    @Override
+                    void usage() {
+                        Player player = stage.getPlayer();
+                        player.accessEnergy((int) (player.getMaxEnergy() * 0.2));
+                    }
+                }
+        };
+        mItemMedkit = new ItemCircleButton(300, 650, items[0]);
+        mItemEngkit = new ItemCircleButton(410, 650, items[1]);
     }
 
     @Override
@@ -79,6 +179,9 @@ public class GameState_Running extends GameState {
         prevWeaponBt.update(deltaTime);
         nextWeaponBt.update(deltaTime);
 
+        mItemMedkit.update(deltaTime);
+        mItemEngkit.update(deltaTime);
+
         //处理输入事件
         List<Input.Touch> touchEvents = gameScreen.getInput().getTouchEvents();
         int len = touchEvents.size();
@@ -88,6 +191,12 @@ public class GameState_Running extends GameState {
             if(pauseBt.isClicked(event)){
                 gameScreen.setState(GameState.PAUSED);
                 break;
+            }
+            else if(mItemMedkit.isClicked(event)){
+
+            }
+            else if(mItemEngkit.isClicked(event)){
+
             }
             //切换武器按钮
             else if(nextWeaponBt.isClicked(event)){
@@ -217,6 +326,12 @@ public class GameState_Running extends GameState {
         g.drawText(mWeaponCostString,1085,9+75,0xFFFFFFFF,24);
         nextWeaponBt.present(g);
         prevWeaponBt.present(g);
+
+        /**
+         * 绘制Supply Item
+         */
+        mItemMedkit.present(g);
+        mItemEngkit.present(g);
 
         //g.drawText(String.valueOf(score),1280-400,40,0xFFFFFFFF,35);
 
