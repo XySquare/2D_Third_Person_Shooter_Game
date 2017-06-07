@@ -47,13 +47,16 @@ public class Screen_MainMenu_Store_Promos extends Screen {
     private final CaseItem[] mCaseItems = new CaseItem[]{
             new CaseItem(IMIDesertEagle.class,50),
             new CaseItem(M16A4.class,50),
-            new CaseItem(RPG.class,10)
+            new CaseItem(RPG.class,10),
+            new CaseItem(RPD.class, 10)
     };
 
     private final CaseItem[] mEliteCaseItems = new CaseItem[]{
             new CaseItem(IMIDesertEagle.class,50),
             new CaseItem(M16A4.class,50),
-            new CaseItem(RPG.class,120)
+            new CaseItem(RPG.class,120),
+            new CaseItem(BlackHole.class, 30),
+            new CaseItem(RPD.class, 100)
     };
 
     private final ListItem[] mListItems;

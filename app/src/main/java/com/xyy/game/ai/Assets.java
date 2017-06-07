@@ -61,7 +61,7 @@ public class Assets {
     //玩家
     public static Pixmap player;
     //敌人
-    public static Pixmap hostile, defenceHostile;
+    public static Pixmap hostile, defenceHostile, blewHostile, assistHostile;
     //
     public static Pixmap NPCProducer;
 
@@ -97,6 +97,8 @@ public class Assets {
     public static Pixmap energy;
     //HP
     public static Pixmap aid;
+    //奖励
+    public static Pixmap award;
 
     public static Pixmap btArrowLeft, btArrowRight;
 

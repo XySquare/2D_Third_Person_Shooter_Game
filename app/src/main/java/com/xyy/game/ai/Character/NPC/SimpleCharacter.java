@@ -11,6 +11,7 @@ import com.xyy.game.FSM.FiniteStateMachine;
 import com.xyy.game.ai.*;
 import com.xyy.game.ai.Attack.AtkInfo;
 import com.xyy.game.ai.Attack.Attack;
+import com.xyy.game.ai.Attack.AwardBox;
 import com.xyy.game.ai.Attack.EnergyBox;
 import com.xyy.game.ai.Attack.GeneralCircleAttack;
 import com.xyy.game.ai.Attack.GeneralLineAttack;
@@ -103,7 +104,7 @@ public final class SimpleCharacter extends Character implements NPC{
 
     public SimpleCharacter(final Stage stage) {
         super(stage,TAG);
-        this.r = 65;
+        this.r = 47;
         setV(200);
         setMaxHp(20);
         setHp(20);
@@ -433,15 +434,8 @@ public final class SimpleCharacter extends Character implements NPC{
 
     @Override
     protected int onDestroyed() {
-        //TODO: 从排名中移除该对象（如果有）
-        int i = rank.indexOf(this);
-        if(i>0) {
-            stage.accessScore(10 + 5*(3 - i));
-            rank.remove(i);
-            shouldAddBuff = true;
-        }else
-            //TODO: 加分
-            stage.accessScore(10);
+        //TODO: 加分
+        stage.accessScore(100);
         //被销毁时产生范围攻击
         GeneralCircleAttack atkObj = new GeneralCircleAttack(stage);
         atkObj.initialize(this, x, y, 0, 0, 0, 25 * getAtk(), 100);
@@ -452,21 +446,27 @@ public final class SimpleCharacter extends Character implements NPC{
         stage.addEffect(effect);
         //随机产生能量包或生命包
         double ran = Math.random();
-        if(ran>0.9) {
+        if(ran>0.8) {
             EnergyBox energyBox = new EnergyBox(stage);
             energyBox.initialize(this, x, y);
             stage.addAtkHostile(energyBox);
             stage.addToTrackList(energyBox, 1);
         }
-        else if(ran>0.8){
+        else if(ran>0.6){
             LifeBox lifeBox = new LifeBox(stage);
             lifeBox.initialize(this, x, y);
             stage.addAtkHostile(lifeBox);
             stage.addToTrackList(lifeBox,1);
+        } else if (ran > 0.4) {
+            AwardBox awardBox = new AwardBox(stage);
+            awardBox.initialize(this, x, y);
+            stage.addAtkHostile(awardBox);
+            stage.addToTrackList(awardBox, 1);
         }
         //向父级回调被销毁
         parent.onChildrenDestroyed(this);
         parent = null;
+        if (defender() != null) defender().onDefendedDestroyed(this);
 
         return 0;
     }

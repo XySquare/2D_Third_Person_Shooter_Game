@@ -3,9 +3,11 @@ package com.xyy.game.ai.Screen;
 import android.graphics.Paint;
 
 import com.xyy.game.ai.Assets;
+import com.xyy.game.ai.Weapon.BlackHole;
 import com.xyy.game.ai.Weapon.IMIDesertEagle;
 import com.xyy.game.ai.Weapon.M16A4;
 import com.xyy.game.ai.Weapon.M16A4_S;
+import com.xyy.game.ai.Weapon.RPD;
 import com.xyy.game.ai.Weapon.RPG;
 import com.xyy.game.ai.Weapon.Weapon;
 import com.xyy.game.framework.Game;
@@ -97,7 +99,9 @@ public class Screen_MainMenu_Store extends Screen {
                 new Item(new IMIDesertEagle(), 500),
                 new Item(new M16A4(),2500),
                 new Item(new RPG(),5000),
-                new Item(new M16A4_S(),10000)
+                new Item(new M16A4_S(),10000),
+                new Item(new RPD(), 10000),
+                new Item(new BlackHole(), 50000)
         };
         mItemNum = mItems.length;
 

@@ -1,5 +1,6 @@
 package com.xyy.game.ai.Screen;
 
+import com.xyy.game.ai.Character.NPC.RootCharacter;
 import com.xyy.game.ai.GameDataManager;
 import com.xyy.game.ai.GameState;
 import com.xyy.game.ai.GameStateManager;
@@ -133,6 +134,7 @@ public class GameScreen extends Screen implements GameScreenOperation, GameState
         GameDataManager.save(game.getFileIO());
         //当活动被暂停时，将游戏暂停
         setState(GameState.PAUSED);
+   //     GameDataManager.writeData(game.getFileIO(), "data_blew.dat", new double[][]{RootCharacter.sWeights});
     }
 
     @Override

@@ -236,7 +236,7 @@ public abstract class Character extends GameObject implements Defended {
             /*if (defender() != null) {
                 defender().onDefendedDestroyed(this);
             }
-            hp = onDestroyed();*/
+            hp = onDestroyed(); */
             hp = 0;
         }
         else{

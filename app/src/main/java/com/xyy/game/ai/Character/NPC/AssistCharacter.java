@@ -116,7 +116,7 @@ public class AssistCharacter extends Character implements NPC{
 
     public AssistCharacter(Stage stage) {
         super(stage,TAG);
-        this.r = 75;
+        this.r = 37;
         setV(200);
         setMaxHp(20);
         setHp(20);
@@ -397,7 +397,7 @@ public class AssistCharacter extends Character implements NPC{
 
     @Override
     public void present(Graphics g, float offsetX, float offsetY) {
-        g.drawPixmapDegree(Assets.hostile, this.x - offsetX, this.y - offsetY, rotation);
+        g.drawPixmapDegree(Assets.assistHostile, this.x - offsetX, this.y - offsetY, rotation);
     }
 
     @Override
@@ -429,6 +429,7 @@ public class AssistCharacter extends Character implements NPC{
         //向父级回调被销毁
         parent.onChildrenDestroyed(this);
         parent = null;
+        if (defender() != null) defender().onDefendedDestroyed(this);
 
         return 0;
     }
@@ -597,24 +598,24 @@ public class AssistCharacter extends Character implements NPC{
             vx -= vx * deltaTime * 10;
             vy -= vy * deltaTime * 10;
         } else {
-            switch (action & 0x3) {
-                case 1:
-                    vx += XUnitToPlayer * getV();
-                    vy += YUnitToPlayer * getV();
+            switch (action & 0xC) {
+                case 4:
+                    vx += -YUnitToPlayer * getV();
+                    vy += XUnitToPlayer * getV();
                     break;
-                case 2:
-                    vx += -XUnitToPlayer * getV();
-                    vy += -YUnitToPlayer * getV();
+                case 8:
+                    vx += YUnitToPlayer * getV();
+                    vy += -XUnitToPlayer * getV();
                     break;
                 default:
-                    switch (action & 0xC) {
-                        case 4:
-                            vx += -YUnitToPlayer * getV();
-                            vy += XUnitToPlayer * getV();
+                    switch (action & 0x3) {
+                        case 1:
+                            vx += XUnitToPlayer * getV();
+                            vy += YUnitToPlayer * getV();
                             break;
-                        case 8:
-                            vx += YUnitToPlayer * getV();
-                            vy += -XUnitToPlayer * getV();
+                        case 2:
+                            vx += -XUnitToPlayer * getV();
+                            vy += -YUnitToPlayer * getV();
                             break;
                     }
             }

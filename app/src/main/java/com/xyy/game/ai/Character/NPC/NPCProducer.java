@@ -21,6 +21,8 @@ public final class NPCProducer extends Character implements NPC {
      */
     private static GenPool genPool = null;
     private static GenPool genPool_Defence = null;
+    private static GenPool genPool_Assist = null;
+    private static GenPool genPool_Blew = null;
 
     private int childrenCounter;
 
@@ -34,6 +36,8 @@ public final class NPCProducer extends Character implements NPC {
         //初始化基因池
         genPool = GameDataManager.getGenPool("Data.dat");
         genPool_Defence = GameDataManager.getGenPool("data_defence.dat");
+        genPool_Assist = GameDataManager.getGenPool("data_assist.dat");
+        genPool_Blew = GameDataManager.getGenPool("data_blew.dat");
 
         this.r = 100;
         setMaxHp(500);
@@ -100,26 +104,32 @@ public final class NPCProducer extends Character implements NPC {
         //随机生成敌人（调试）
         if (Math.random() > 0.99 && childrenCounter < 3) {
             double rand = Math.random();
-            if (rand > 0.66) {
+            if (rand > 0.75) {
                 SimpleCharacter simpleCharacter = new SimpleCharacter(stage);//暂时没使用回收池
                 simpleCharacter.initialize(this, (int) x, (int) y);
                 double[] gen = genPool.get();
                 simpleCharacter.putWeights(gen);
                 stage.addHostile(simpleCharacter);
                 stage.addToTrackList(simpleCharacter);
-            } else if (rand > 0.33){
+            } else if (rand > 0.5){
                 DefenceCharacter defenceCharacter = new DefenceCharacter(stage);
                 defenceCharacter.initialize(this, (int) x, (int) y);
                 defenceCharacter.putWeights(genPool_Defence.get());
        //         defenceCharacter.putWeights(weights);
                 stage.addHostile(defenceCharacter);
                 stage.addToTrackList(defenceCharacter);
-            } else {
+            } else if (rand > 0.25){
                 AssistCharacter assistCharacter = new AssistCharacter(stage);
                 assistCharacter.initialize(this, (int)x, (int)y);
-                assistCharacter.putWeights(weights);
+                assistCharacter.putWeights(genPool_Assist.get());
                 stage.addHostile(assistCharacter);
                 stage.addToTrackList(assistCharacter);
+            } else {
+                BlewCharacter blewCharacter = new BlewCharacter(stage);
+                blewCharacter.initialize(this, (int)x, (int)y);
+                blewCharacter.putWeights(genPool_Blew.get());
+                stage.addHostile(blewCharacter);
+                stage.addToTrackList(blewCharacter);
             }
             childrenCounter++;
         }

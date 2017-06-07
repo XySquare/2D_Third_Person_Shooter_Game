@@ -52,7 +52,7 @@ public final class RootCharacter extends Character implements NPC {
 
     private NeuralNet mNeuralNet;
 
-    private static double[] sWeights;
+    public static double[] sWeights;
 
     public RootCharacter(Stage stage) {
         super(stage,TAG);
@@ -68,7 +68,7 @@ public final class RootCharacter extends Character implements NPC {
         npcProducer = new NPCProducer[10];
 
         mNeuralNet = new NeuralNet(3, 4, 6);
-        mNeuralNet.Train(AssistCharacter.sData);
+   //     mNeuralNet.Train(BlewCharacter.sData);
 
         sWeights = mNeuralNet.GetWeights();
 

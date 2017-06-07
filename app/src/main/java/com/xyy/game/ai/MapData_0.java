@@ -80,7 +80,7 @@ public final class MapData_0 implements MapData {
 
     @Override
     public String[] getDataToLoad() {
-        return new String[]{"Data.dat", "data_defence.dat"};
+        return new String[]{"Data.dat", "data_defence.dat", "data_assist.dat", "data_blew.dat"};
     }
 
     @Override

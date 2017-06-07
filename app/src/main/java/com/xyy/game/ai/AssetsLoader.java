@@ -92,10 +92,13 @@ public class AssetsLoader implements Runnable {
         Assets.hostile = g.newPixmap("hostile.png", Graphics.PixmapFormat.ARGB4444);
         Assets.defenceHostile = g.newPixmap("hostile_defence.png", Graphics.PixmapFormat.ARGB4444);
         Assets.NPCProducer = g.newPixmap("NPCProducer.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.blewHostile = g.newPixmap("hostile_blew.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.assistHostile = g.newPixmap("hostile_assist.png", Graphics.PixmapFormat.ARGB4444);
         //Assets.map00Bg = g.newPixmap("map00_bg.png", Graphics.PixmapFormat.RGB565);
         //Assets.ranks = g.newPixmap("ranks.png", Graphics.PixmapFormat.ARGB4444);
         Assets.energy = g.newPixmap("energy.png", Graphics.PixmapFormat.ARGB4444);
         Assets.aid= g.newPixmap("aid.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.award = g.newPixmap("award.png", Graphics.PixmapFormat.ARGB4444);
         Assets.numbers5_26_2 = g.newPixmap("numbers5_26_2.png", Graphics.PixmapFormat.ARGB4444);
         //Assets.map0_Bg = g.newBigPixmap("map00_bg.png");
         Assets.btArrowLeft = g.newPixmap("arrowBt.png", Graphics.PixmapFormat.ARGB4444, 0, 0, 30,60);
