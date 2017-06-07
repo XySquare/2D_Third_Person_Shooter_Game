@@ -9,11 +9,11 @@ import com.xyy.game.util.iPoint;
  * Stage将通过该接口获取地图数据
  * Created by ${XYY} on ${2016/9/25}.
  */
-public interface World {
+public interface Map {
 
     String getUid();
 
-    Character getRootCharacter(Stage stage);
+    Class<? extends Character> getRootCharacter();
 
     Pixmap getMapBackGround();
 

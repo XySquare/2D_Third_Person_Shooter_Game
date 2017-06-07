@@ -1,11 +1,8 @@
 package com.xyy.game.ai.Screen;
 
-import com.xyy.game.ai.Assets;
+import android.graphics.Paint;
+
 import com.xyy.game.ai.AssetsLoader;
-import com.xyy.game.ai.Screen.GameScreen;
-import com.xyy.game.ai.World;
-import com.xyy.game.ai.WorldBuilder;
-import com.xyy.game.ai.WorldData_0;
 import com.xyy.game.framework.Game;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Input;
@@ -71,10 +68,10 @@ public class LogoScreen extends Screen {
         Graphics g = game.getGraphics();
         g.fill(0xFF000000);
         final int color = (int)alpha<<24 | 0xFFFFFF;
-        g.drawText("Present by",560,320,color,35);
-        g.drawText("Xu YiYang",580,370,color,35);
-        g.drawText("Zhou WenGuan",560,410,color,35);
-        g.drawText("All Rights Reserved",510,700,color,30);
+        g.drawText("Present by",1280/2,320,color,35, Paint.Align.CENTER);
+        g.drawText("Xu YiYang",1280/2,370,color,35, Paint.Align.CENTER);
+        g.drawText("Zhou WenGuan",1280/2,410,color,35, Paint.Align.CENTER);
+        g.drawText("All Rights Reserved",1280/2,700,color,30, Paint.Align.CENTER);
     }
 
 

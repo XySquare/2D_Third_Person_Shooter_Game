@@ -7,6 +7,7 @@ import com.xyy.game.ANN.NeuralNet;
 import com.xyy.game.ai.*;
 import com.xyy.game.ai.Attack.AtkInfo;
 import com.xyy.game.ai.Attack.InvisibleAttackBeforeCataclysm;
+import com.xyy.game.ai.Attack.MapSwitchAction;
 import com.xyy.game.ai.Character.Character;
 import com.xyy.game.component.ProcessingAnimationRever;
 import com.xyy.game.framework.Graphics;
@@ -20,6 +21,7 @@ import java.util.Collections;
  * Created by ${XYY} on ${2016/8/24}.
  */
 public final class RootCharacter extends Character implements NPC {
+    private static final String TAG = "RootCharacter";
 
     private static final int NEXT_ROUND = 100;
 
@@ -46,14 +48,14 @@ public final class RootCharacter extends Character implements NPC {
     private ArrayList<iPoint> availPoints;
     private ArrayList<iPoint> usedPoints;
 
-    private ProcessingAnimationRever loadPrc;
+    //private ProcessingAnimationRever loadPrc;
 
     private NeuralNet mNeuralNet;
 
     private static double[] sWeights;
 
     public RootCharacter(Stage stage) {
-        super(stage);
+        super(stage,TAG);
 
         //初始化基因池
         genPool = GameDataManager.getGenPool("Data.dat");
@@ -102,7 +104,8 @@ public final class RootCharacter extends Character implements NPC {
 
         usedPoints = new ArrayList<>(points.length);
 
-        loadPrc = new ProcessingAnimationRever(1280-400,10,300,25,0xFFFF0000);
+
+        stage.addAtkHostile(new MapSwitchAction(stage).initialize(this,415,2584,50,MapData_0.uid));
     }
 
     @Override
@@ -203,7 +206,7 @@ public final class RootCharacter extends Character implements NPC {
             Log.i("RootCharacter","Cataclysm Active!");
         }
 
-        loadPrc.update(deltaTime,genPool.getCataclysmProcess());
+        //loadPrc.update(deltaTime,genPool.getCataclysmProcess());
     }
 
     @Override
@@ -239,13 +242,13 @@ public final class RootCharacter extends Character implements NPC {
     public void present(Graphics g, float offsetX, float offsetY) {
         //g.drawText(genPool.getCataclysmProcess()+"%",10,100,0xFFFFFFFF,35);
 
-        loadPrc.present(g);
+        //loadPrc.present(g);
 
-        g.drawText(String.valueOf(round),1280/2-10,37,0xFFFFFFFF,35);
+        //g.drawText(String.valueOf(round),1280/2-10,37,0xFFFFFFFF,35);
         //绘制环形进度条的半透明背景
-        g.drawRing(1280/2, 0, 50, 0, 180, 0x7FFFFFFF,8);
+        //g.drawRing(1280/2, 0, 50, 0, 180, 0x7FFFFFFF,8);
         //绘制环形进度条
-        g.drawRing(1280/2, 0, 50, 0, 180*(float)counterToNextRound/NEXT_ROUND, 0xFFFFFFFF,8);
+        //g.drawRing(1280/2, 0, 50, 0, 180*(float)counterToNextRound/NEXT_ROUND, 0xFFFFFFFF,8);
     }
 
     @Override

@@ -1,7 +1,5 @@
 package com.xyy.game.component;
 
-import android.graphics.Paint;
-
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Input;
 import com.xyy.game.framework.Pixmap;
@@ -12,7 +10,7 @@ import com.xyy.game.framework.Pixmap;
  * 带有点击缩放效果。
  * Created by ${XYY} on ${2017/4/14}.
  */
-public class SquareButton {
+public class SquareImageButton {
     //坐标
     private final int x, y;
     //宽/高
@@ -20,8 +18,7 @@ public class SquareButton {
     //颜色
     private final int color;
     //图标
-    //private final Pixmap ico;
-    private final String mText;
+    private final Pixmap ico;
     //当前缩放
     private float currentScale;
     //目标缩放
@@ -38,13 +35,13 @@ public class SquareButton {
     //计时器
     private float timer;
 
-    public SquareButton(int x, int y, int w, int h, int color, String text) {
+    public SquareImageButton(int x, int y, int w, int h, int color, Pixmap ico) {
         this.x = x;
         this.y = y;
         this.w = w;
         this.h = h;
         this.color = color;
-        mText = text;
+        this.ico = ico;
     }
 
     /**
@@ -120,9 +117,8 @@ public class SquareButton {
     public void present(Graphics g) {
         //绘制背景
         g.drawRect((int) (x + w * (1 - currentScale) / 2), (int) (y + h * (1 - currentScale) / 2), (int) (w * currentScale), (int) (h * currentScale), (color & 0x00FFFFFF) | ((int) currentAlpha << 24));
-        //绘制文字
-        if (timer >= delay)
-            g.drawText(mText,x + w / 2 - 1, y + h - 20,0xFFFFFF | ((int) (0xFF*currentScale) << 24), (h-32), Paint.Align.CENTER);
+        //绘制图标
+        g.drawPixmapScale(ico, x + w / 2 - 1, y + h / 2, currentScale, currentScale, (int) (currentAlphaPixmap));
     }
 
     private static boolean inBounds(Input.Touch event, int x, int y, int w, int h) {

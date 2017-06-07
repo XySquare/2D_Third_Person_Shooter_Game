@@ -113,7 +113,9 @@ public class Screen_MainMenu_Store_Weapon_Detail extends Screen {
         g.drawText("STORE",77,28,0xFF999999,24);
         //"Store"文字
         g.drawText("[WEAPON DETAIL]",77,53,0xFFFFFFFF,24);
-
+        //货币
+        g.drawText("CREDIT",1280-200-8,40,0xFFFFF200,30, Paint.Align.RIGHT);
+        g.drawText(String.valueOf(UserDate.sCurrency),1280-200,40,0xFFFFFFFF,30);
 
         Weapon weapon = mItem.mWeapon;
 
@@ -143,6 +145,7 @@ public class Screen_MainMenu_Store_Weapon_Detail extends Screen {
             g.drawPixmap(Assets.button_details, 900, 420, 189 ,0, 189, 74);
         else
             g.drawPixmap(Assets.button_details, 900, 420, 0 ,0, 189, 74);
+        g.drawText("PURCHASE NOW",575+24, 420+24+20, 0xFFFFFFFF, 24);
         g.drawText(String.valueOf(mItem.mPrice),900+95, 420+24+20, 0xFFFFFFFF, 24, Paint.Align.CENTER);
 
         g.drawPixmap(weapon.getPixmap(),630,200);

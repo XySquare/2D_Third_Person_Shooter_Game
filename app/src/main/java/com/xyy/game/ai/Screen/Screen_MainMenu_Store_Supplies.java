@@ -283,6 +283,7 @@ public class Screen_MainMenu_Store_Supplies extends Screen {
         //"Store"文字
         g.drawText("[STORE]", 77, 53, 0xFFFFFFFF, 24);
         //货币
+        g.drawText("CREDIT",1280-200-8,40,0xFFFFF200,30, Paint.Align.RIGHT);
         g.drawText(String.valueOf(UserDate.sCurrency),1280-200,40,0xFFFFFFFF,30);
 
         g.drawPixmap(Assets.button_tab, 378, 68, 0, 0, 180, 68);
@@ -391,7 +392,7 @@ public class Screen_MainMenu_Store_Supplies extends Screen {
             g.drawPixmap(Assets.button_details_s, x + 195, y + 120, 146, 0, 146, 66);
         else
             g.drawPixmap(Assets.button_details_s, x + 195, y + 120, 0, 0, 146, 66);
-        g.drawText(String.valueOf(item.mPrice), x + 195 + 86, y + 120 + 24 + 16, 0xFFFFFFFF, 24);
+        g.drawText(String.valueOf(item.mPrice), x + 195 + 73, y + 120 + 24 + 16, 0xFFFFFFFF, 24);
 
         g.drawPixmap(item.mIco, x + 53-8, y + 25);
         g.drawText(item.mName, x + 91, y + 160, 0xFFFFFFFF, 26, Paint.Align.CENTER);

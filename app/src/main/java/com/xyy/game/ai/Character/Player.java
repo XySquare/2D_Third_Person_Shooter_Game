@@ -14,14 +14,20 @@ import com.xyy.game.util.Line;
  * Created by ${XYY} on ${2016/8/5}.
  */
 public class Player extends Character {
+    private static final String TAG = "Player";
+
     //速度分量
     private float vx = 0;
     private float vy = 0;
     //旋转角
     private float rotation;
 
+    private int mBasicAtk;
+
+    private int mWeaponAtk;
+
     public Player(Stage stage) {
-        super(stage);
+        super(stage,TAG);
         //this.name = "Player";
         this.r = 50;
         setV(450);
@@ -44,6 +50,17 @@ public class Player extends Character {
         vy = uy * getV();
         if(vx!=0 || vy!=0)
             rotation = (float) (90+Math.acos((double)ux) * 180 / Math.PI* (uy < 0 ? -1 : 1));
+    }
+
+    @Override
+    public void setAtk(int atk) {
+        mBasicAtk = atk;
+        super.setAtk(atk + mWeaponAtk);
+    }
+
+    public void setWeaponAtk(int atk){
+        mWeaponAtk = atk;
+        super.setAtk(atk + mBasicAtk);
     }
 
     @Override

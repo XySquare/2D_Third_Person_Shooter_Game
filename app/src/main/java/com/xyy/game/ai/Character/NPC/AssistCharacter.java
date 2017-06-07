@@ -15,7 +15,8 @@ import com.xyy.game.ai.Attack.Attack;
 import com.xyy.game.ai.Attack.EnergyBox;
 import com.xyy.game.ai.Attack.GeneralCircleAttack;
 import com.xyy.game.ai.Attack.LifeBox;
-import com.xyy.game.ai.Attack.SpeedUpCircleAssist;
+import com.xyy.game.ai.Attack.BuffArea;
+import com.xyy.game.ai.Buff;
 import com.xyy.game.ai.Character.Character;
 import com.xyy.game.ai.Effect.MultSquareEffect;
 import com.xyy.game.ai.Environment;
@@ -26,13 +27,13 @@ import com.xyy.game.util.IntArrayList;
 import com.xyy.game.util.Line;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by berryice on 2017/4/20.
  */
 
 public class AssistCharacter extends Character implements NPC{
+    private static final String TAG = "AssistCharacter";
 
     public static final Data sData = new Data() {
         public double[][] GetInputSet() {
@@ -114,7 +115,7 @@ public class AssistCharacter extends Character implements NPC{
     private ArrayList<Character> hostileList;
 
     public AssistCharacter(Stage stage) {
-        super(stage);
+        super(stage,TAG);
         this.r = 75;
         setV(200);
         setMaxHp(20);
@@ -181,9 +182,8 @@ public class AssistCharacter extends Character implements NPC{
         findPathThread.start();
     }
 
-    public void initialize(@NonNull NPC parent, String name, int x, int y) {
+    public void initialize(@NonNull NPC parent, int x, int y) {
         this.parent = parent;
-        this.name = name;
         this.x = x;
         this.y = y;
         //Log.e(getName(),"initialize x/y = "+x+" / "+y);
@@ -194,7 +194,7 @@ public class AssistCharacter extends Character implements NPC{
 
         vx = vy = 0;
 
-        atkDelay = (float) (15 + 5 * Math.random());
+        atkDelay = (float) (3 + 2 * Math.random());
 
         shouldAddBuff = false;
     }
@@ -541,8 +541,8 @@ public class AssistCharacter extends Character implements NPC{
         if (delayTimer >= atkDelay) {
             delayTimer -= atkDelay;
             //将AttackObject(Hostile)置于舞台
-            SpeedUpCircleAssist atkObj = new SpeedUpCircleAssist(stage);
-            atkObj.initialize(this, x, y, XUnitToPlayer, YUnitToPlayer, 50, 0, 300);//TODO:NPC攻击的能量暂时为0
+            BuffArea atkObj = new BuffArea(stage);
+            atkObj.initialize(this, x, y, 300, Buff.ATK_UP_X);//TODO:NPC攻击的能量暂时为0
             stage.addAtkPlayer(atkObj);
         }
 

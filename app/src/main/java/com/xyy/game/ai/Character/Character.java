@@ -37,7 +37,7 @@ public abstract class Character extends GameObject implements Defended {
     //碰撞检测半径
     protected int r;
     //名称
-    protected String name;
+    protected final String name;
     //移动速度
     //private int v;
     //当前生命值
@@ -80,21 +80,22 @@ public abstract class Character extends GameObject implements Defended {
 
     private Defender mDefender;
 
-    public Character(Stage stage) {
+    public Character(Stage stage, String name) {
         super(stage);
+
+        this.name = name;
 
         primitiveProperty = new int[5];
         currentProperty = new int[5];
 
-        buffManager = new BuffManager(primitiveProperty,currentProperty);
+        buffManager = new BuffManager(name, primitiveProperty,currentProperty);
 
         timerRecovery = 0;
 
     }
 
-    public void initialize(@NonNull NPC parent, String name, int x, int y){
+    public void initialize(@NonNull NPC parent, int x, int y){
         this.parent = parent;
-        this.name = name;
         this.x = x;
         this.y = y;
     }
@@ -168,7 +169,9 @@ public abstract class Character extends GameObject implements Defended {
         if(hp>0) {
             final float n = 0.1f;
             final int def = getDef();
-            hp += (int) (val * (1 - (n * def) / (1 + n * def)));
+            final int dam = (int) (val * (1 - (n * def) / (1 + n * def)));
+            Log.i(name,"受到 "+dam+" 点伤害。");
+            hp += dam;
             if (hp <= 0) {
                 if (defender() != null) {
                     defender().onDefendedDestroyed(this);
@@ -225,12 +228,16 @@ public abstract class Character extends GameObject implements Defended {
         this.y = y;
     }
 
+    /**
+     * 如需照成伤害，请使用accessHP或accessHp_Defence
+     */
     public void setHp(int val){
         if(hp>0 && val <= 0) { //避免角色死亡后重复回调
-            if (defender() != null) {
+            /*if (defender() != null) {
                 defender().onDefendedDestroyed(this);
             }
-            hp = onDestroyed();
+            hp = onDestroyed();*/
+            hp = 0;
         }
         else{
             final int maxHp = getMaxHp();
@@ -281,7 +288,6 @@ public abstract class Character extends GameObject implements Defended {
     }
 
     public void addBuff(int uid){
-        Log.v(name,name + " 获得BUFF(uid="+uid+")");
         buffManager.addBuff(uid);
     }
 
@@ -299,7 +305,7 @@ public abstract class Character extends GameObject implements Defended {
             if (timerRecovery >= 2) {
                 timerRecovery -= 2;
                 accessHp(rec);
-                if (rec > 0) Log.v(name, name + "Hp恢复" + rec + "点");
+                if (rec > 0) Log.i(name, name + "战斗中恢复" + rec + "点。");
             }
         }
         /**

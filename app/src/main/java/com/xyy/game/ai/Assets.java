@@ -42,17 +42,17 @@ public class Assets {
     //暂停按钮图标
     public static Pixmap pauseIco;
     //继续按钮图标
-    public static Pixmap playIco;
+    //public static Pixmap playIco;
     //主菜单按钮图标
-    public static Pixmap mainMenuIco;
+    //public static Pixmap mainMenuIco;
     //退出按钮图标
-    public static Pixmap exitIco;
+    //public static Pixmap exitIco;
     //重试按钮
-    public static Pixmap retryIco;
+    //public static Pixmap retryIco;
     //×按钮图标
-    public static Pixmap crossIco;
+    //public static Pixmap crossIco;
     //√按钮图标
-    public static Pixmap tickIco;
+    //public static Pixmap tickIco;
     //目标追踪箭头
     public static Pixmap[] arrows;
     //数字
@@ -68,7 +68,7 @@ public class Assets {
     //开始start按钮,背景,2个按钮,logo,back
     public static Pixmap start;
 
-    public static Pixmap getMore;
+    //public static Pixmap getMore;
 
     public static Pixmap setting;
 
@@ -89,9 +89,9 @@ public class Assets {
 
     public static Pixmap highFilter;
 
-    public static Pixmap map00Bg;
+    //public static Pixmap map00Bg;
 
-    public static Pixmap ranks;
+    //public static Pixmap ranks;
 
     //能量
     public static Pixmap energy;
@@ -101,4 +101,9 @@ public class Assets {
     public static Pixmap btArrowLeft, btArrowRight;
 
     //public static BitmapRegionDecoder map0_Bg;
+
+    //特效
+    public static Pixmap effect_66ccff_radial_00_ff;
+    public static Pixmap effect_ff0000_radial_00_ff;
+    public static Pixmap effect_ffffff_radial_00_99;
 }

@@ -28,7 +28,9 @@ public abstract class GameState {
 
     public abstract void onBack();
 
-    //public abstract void exit();
+    public void exit(){
+
+    }
 
     public final void dispose() {
         stage.dispose();

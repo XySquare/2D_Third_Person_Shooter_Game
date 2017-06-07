@@ -28,8 +28,8 @@ public class CrashReportScreen extends Screen {
     private int offline = 0;//背景绘线偏移量
     public CrashReportScreen(Game game, ArrayList<File> crashReports) {
         super(game);
-        okBt = new CircleButton(1280/2-300,720/2+20,80,0xFFF3318A,Assets.tickIco);
-        cancelBt = new CircleButton(1280/2-300,720/2+200,80,0xFF30547C,Assets.crossIco);
+        //okBt = new CircleButton(1280/2-300,720/2+20,80,0xFFF3318A,Assets.tickIco);
+        //cancelBt = new CircleButton(1280/2-300,720/2+200,80,0xFF30547C,Assets.crossIco);
         this.crashReports = crashReports;
     }
 

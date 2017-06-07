@@ -86,9 +86,9 @@ public class MapsSelectingScreen extends Screen {
                     case 0:
                         game.setScreen(new GameLoadingScreen(game, "map00"));
                         break;
-                    case 1:
-                        game.setScreen(new Screen_MainMenu_Store(game));
-                        break;
+                    //case 1:
+                        //game.setScreen(new Screen_MainMenu_Store(game));
+                        //break;
                 }
             }
         }
@@ -180,7 +180,7 @@ public class MapsSelectingScreen extends Screen {
                             }
                             else {
                                 final int click = (size + mid - ifDir) % size;
-                                if (click <= 1) {//TODO: 如有更多可用的地图,请修改此值
+                                if (click <= 0) {//TODO: 如有更多可用的地图,请修改此值
                                     targetScale = 1;
                                     this.clicked = click;
                                 }
@@ -237,6 +237,7 @@ public class MapsSelectingScreen extends Screen {
         //"Store"文字
         g.drawText("[CAMPAIGN]", 77, 53, 0xFFFFFFFF, 24);
         //货币
+        g.drawText("CREDIT",1280-200-8,40,0xFFFFF200,30, Paint.Align.RIGHT);
         g.drawText(String.valueOf(UserDate.sCurrency),1280-200,40,0xFFFFFFFF,30);
 
         if (ifDir == 1) {//右

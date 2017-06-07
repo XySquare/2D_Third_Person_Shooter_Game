@@ -2,13 +2,8 @@ package com.xyy.game.ai;
 
 
 import android.util.Log;
-import android.util.SparseArray;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by ${XYY} on ${2016/9/7}.
@@ -42,7 +37,7 @@ public class BuffManager {
                 counter++;
                 //刷新Buff时间
                 timer = buff.duration;
-                Log.v("BuffMag", "[" + buff.name + "]叠加 " + counter + "/" + buff.max);
+                Log.i("BuffMag", HOST + " 获得 " + buff.name +"("+ counter + "/" + buff.max + ") 效果");
                 //需刷新当前属性
                 return true;
             }
@@ -50,9 +45,9 @@ public class BuffManager {
             else if (buff.refresh) {
                 //刷新Buff时间
                 timer = buff.duration;
-                Log.v("BuffMag", "[" + buff.name + "]已达上限，刷新时间");
+                Log.i("BuffMag", HOST + " 获得 " + buff.name + "(MAX) 效果，并刷新");
             } else {
-                Log.v("BuffMag", "[" + buff.name + "]已达上限，且被禁止刷新时间，获得的Buff无效");
+                Log.i("BuffMag", HOST + " 获得 " + buff.name +"(MAX) 效果，但该效果无法刷新");
             }
             //无需刷新当前属性
             return false;
@@ -68,15 +63,15 @@ public class BuffManager {
             return false;
         }
 
-        float getRemainTimeRatio() {
+        public float getRemainTimeRatio() {
             return remainTimeRatio;
         }
 
-        int getCounter() {
+        public int getCounter() {
             return counter;
         }
 
-        int getBuffIco() {
+        public int getBuffIco() {
             return buff.ico;
         }
 
@@ -85,10 +80,7 @@ public class BuffManager {
         }
     }
 
-    /**
-     * 游戏中出现的全部Buff
-     */
-    //private static Buff[] buffs;
+    private final String HOST;
     /**
      * 角色当前持有的Buff
      */
@@ -110,14 +102,10 @@ public class BuffManager {
      */
     private float[] percentages;
 
-    /**
-     * 初始化Buff
-     * //@param buffList 从World中获得
-     */
-    /*public static void setBuffs(Buff[] buffList){
-        BuffManager.buffs = buffList;
-    }*/
-    public BuffManager(int[] primitiveProperty, int[] currentProperty) {
+
+    public BuffManager(String host, int[] primitiveProperty, int[] currentProperty) {
+        HOST = host;
+
         buffList = new ArrayList<>();
 
         values = new int[5];
@@ -169,7 +157,7 @@ public class BuffManager {
 
             currentProperty[type] = (int) (primitiveProperty[type] * percentages[type] + values[type]);
         }
-        Log.v("BuffMag", "获得[" + buff.name + "]");
+        Log.i("BuffMag", HOST + " 获得 " + buff.name + " 效果");
     }
 
     /**

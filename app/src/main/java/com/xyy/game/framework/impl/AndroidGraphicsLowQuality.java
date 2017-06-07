@@ -13,7 +13,6 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.Typeface;
-import android.util.Log;
 
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Pixmap;
@@ -364,10 +363,10 @@ public final class AndroidGraphicsLowQuality implements Graphics {
     }
 
     @Override
-    public void drawText(String text, int x, int y, int color, int size) {
-        x>>=1;
-        y>>=1;
-        size>>=1;
+    public void drawText(String text, float x, float y, int color, float size) {
+        x/=2;
+        y/=2;
+        size/=2;
         paint.setColor(color);
         paint.setTextSize(size);
         paint.setStyle(Paint.Style.FILL);
@@ -376,10 +375,10 @@ public final class AndroidGraphicsLowQuality implements Graphics {
     }
 
     @Override
-    public void drawText(String text, int x, int y, int color, int size, Paint.Align textAlign) {
-        x>>=1;
-        y>>=1;
-        size>>=1;
+    public void drawText(String text, float x, float y, int color, float size, Paint.Align textAlign) {
+        x/=2;
+        y/=2;
+        size/=2;
         paint.setColor(color);
         paint.setTextSize(size);
         paint.setStyle(Paint.Style.FILL);

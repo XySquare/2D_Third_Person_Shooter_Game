@@ -5,6 +5,7 @@ import android.graphics.Paint;
 import com.xyy.game.ai.Assets;
 import com.xyy.game.ai.Weapon.IMIDesertEagle;
 import com.xyy.game.ai.Weapon.M16A4;
+import com.xyy.game.ai.Weapon.M16A4_S;
 import com.xyy.game.ai.Weapon.RPG;
 import com.xyy.game.ai.Weapon.Weapon;
 import com.xyy.game.framework.Game;
@@ -71,7 +72,7 @@ public class Screen_MainMenu_Store extends Screen {
     public Screen_MainMenu_Store(Game game) {
         super(game);
 
-        mItemNum = 9;
+
         mRowNum = 2;
         if (mItemNum % mRowNum == 0)
             mColumnNum = mItemNum / mRowNum;
@@ -86,7 +87,7 @@ public class Screen_MainMenu_Store extends Screen {
 
         if (!dragAble) {
             relativeIndex = COL_SCREEN * ROW_SCREEN;
-            listX = listStartX = (1280 - mColumnNum * ITEM_WIDTH) / 2;
+            //listX = listStartX = (1280 - mColumnNum * ITEM_WIDTH) / 2;
         }
 
         /**
@@ -95,8 +96,10 @@ public class Screen_MainMenu_Store extends Screen {
         mItems = new Item[]{
                 new Item(new IMIDesertEagle(), 500),
                 new Item(new M16A4(),2500),
-                new Item(new RPG(),5000)
+                new Item(new RPG(),5000),
+                new Item(new M16A4_S(),10000)
         };
+        mItemNum = mItems.length;
 
         for (Item item : mItems) {
             item.mWeapon.loadPixmap(game.getGraphics(), Weapon.PixmapQuality.NORMAL);
@@ -274,6 +277,7 @@ public class Screen_MainMenu_Store extends Screen {
         //"Store"文字
         g.drawText("[STORE]", 77, 53, 0xFFFFFFFF, 24);
         //货币
+        g.drawText("CREDIT",1280-200-8,40,0xFFFFF200,30, Paint.Align.RIGHT);
         g.drawText(String.valueOf(UserDate.sCurrency),1280-200,40,0xFFFFFFFF,30);
 
         g.drawPixmap(Assets.button_tab, 378, 68, 180, 0, 180, 68);
@@ -370,7 +374,7 @@ public class Screen_MainMenu_Store extends Screen {
     }
 
     private void item_list_present(Graphics g, int x, int y, int position, boolean pressed) {
-        Item item = mItems[position % mItems.length];
+        Item item = mItems[position /*% mItems.length*/];
 
         Weapon.Rarity rarity = item.mWeapon.getRarity();
         if (rarity == Weapon.Rarity.N)

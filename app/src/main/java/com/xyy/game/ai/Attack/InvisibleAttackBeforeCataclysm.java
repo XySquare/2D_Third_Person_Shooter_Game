@@ -24,7 +24,7 @@ public class InvisibleAttackBeforeCataclysm extends Attack {
     @Override
     public boolean hitTestCharacter(Character character) {
         if(character.getName().startsWith("NPCProducer")){
-            character.setHp(0);
+            character.accessHp(character.getMaxHp());//造成伤害
         }
         return false;
     }

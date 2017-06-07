@@ -13,7 +13,7 @@ public class UserDate {
 
     //public static List<Screen_MainMenu_Repository.WeaponRecord> mWeapons;
 
-    public static int sCurrency = 10000;
+    public static int sCurrency = 1000000;
 
     public static int sMedkit = 0;
 

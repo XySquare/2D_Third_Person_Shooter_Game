@@ -80,5 +80,13 @@ public class Controller {
     public boolean isPressed(){
         return Pointer != -1;
     }
-
+    public void reset(){
+        Pointer = -1;
+        //摇杆的标准化向量
+          x = 0;
+          y = 0;
+        //摇杆的坐标
+          PadX = 0;
+          PadY = 0;
+    }
 }

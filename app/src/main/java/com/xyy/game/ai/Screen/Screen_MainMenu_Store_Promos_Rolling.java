@@ -447,8 +447,8 @@ public class Screen_MainMenu_Store_Promos_Rolling extends Screen {
         g.drawText("DETAIL", x + 234 + 46, y + 152 + 24 + 20, 0xFFFFFFFF, 24);*/
 
         g.drawPixmap(item.getPixmap(), x + 8 + 6, y + 8 + 6);
-        g.drawText(item.getName(), (int) (x + 8 + 6 + 6), y + 152 + 32, 0xFFFFFFFF, 26);
-        g.drawText("DAMAGE "+item.getDamage(), (int) (x + 8 + 6 + 6), y + 152 + 32 + 4 + 24, 0xFFFF5400, 24);
+        g.drawText(item.getName(), (x + 8 + 6 + 6), y + 152 + 32, 0xFFFFFFFF, 26);
+        g.drawText("DAMAGE "+item.getDamage(), (x + 8 + 6 + 6), y + 152 + 32 + 4 + 24, 0xFFFF5400, 24);
     }
 
     @Override

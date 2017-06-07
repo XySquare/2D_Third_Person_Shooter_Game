@@ -32,10 +32,10 @@ public class AssetsLoader implements Runnable {
 
     @Override
     public void run() {
-        Assets.crossIco = g.newPixmap("crossIco.png", Graphics.PixmapFormat.ARGB4444);
-        Assets.tickIco = g.newPixmap("tickIco.png", Graphics.PixmapFormat.ARGB4444);
-        Assets.start = g.newPixmap("START.png", Graphics.PixmapFormat.ARGB4444);
-        Assets.getMore = g.newPixmap("getMore.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.crossIco = g.newPixmap("crossIco.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.tickIco = g.newPixmap("tickIco.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.start = g.newPixmap("START.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.getMore = g.newPixmap("getMore.png", Graphics.PixmapFormat.ARGB4444);
         Assets.setting = g.newPixmap("setting.png", Graphics.PixmapFormat.ARGB4444);
         Assets.ai = g.newPixmap("title.png", Graphics.PixmapFormat.ARGB4444);
         Assets.back= g.newPixmap("back.png", Graphics.PixmapFormat.RGB565);
@@ -69,19 +69,19 @@ public class AssetsLoader implements Runnable {
         Assets.leftGo = g.newPixmap("leftgo.png", Graphics.PixmapFormat.ARGB4444);
         state = MAPSELECTING_LOADED;
 
-        Assets.clear = g.newPixmap("lowquality.png", Graphics.PixmapFormat.ARGB4444);
-        Assets.filter = g.newPixmap("filter.png", Graphics.PixmapFormat.ARGB4444);
-        Assets.highFilter = g.newPixmap("highFilter.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.clear = g.newPixmap("lowquality.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.filter = g.newPixmap("filter.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.highFilter = g.newPixmap("highFilter.png", Graphics.PixmapFormat.ARGB4444);
         state = SETTING_LOADED;
 
         Assets.padA = g.newPixmap("padA.png", Graphics.PixmapFormat.ARGB4444);
         Assets.pad = g.newPixmap("pad.png", Graphics.PixmapFormat.ARGB4444);
         Assets.ico = g.newPixmap("ico.png", Graphics.PixmapFormat.ARGB4444);
         Assets.pauseIco = g.newPixmap("pauseIco.png", Graphics.PixmapFormat.ARGB4444);
-        Assets.playIco = g.newPixmap("playIco.png", Graphics.PixmapFormat.ARGB4444);
-        Assets.mainMenuIco = g.newPixmap("mainMenuIco.png", Graphics.PixmapFormat.ARGB4444);
-        Assets.exitIco = g.newPixmap("exitIco.png", Graphics.PixmapFormat.ARGB4444);
-        Assets.retryIco = g.newPixmap("retryIco.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.playIco = g.newPixmap("playIco.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.mainMenuIco = g.newPixmap("mainMenuIco.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.exitIco = g.newPixmap("exitIco.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.retryIco = g.newPixmap("retryIco.png", Graphics.PixmapFormat.ARGB4444);
 
 
         Pixmap arrow0 = g.newPixmap("arrow.png", Graphics.PixmapFormat.ARGB4444);
@@ -92,14 +92,18 @@ public class AssetsLoader implements Runnable {
         Assets.hostile = g.newPixmap("hostile.png", Graphics.PixmapFormat.ARGB4444);
         Assets.defenceHostile = g.newPixmap("hostile_defence.png", Graphics.PixmapFormat.ARGB4444);
         Assets.NPCProducer = g.newPixmap("NPCProducer.png", Graphics.PixmapFormat.ARGB4444);
-        Assets.map00Bg = g.newPixmap("map00_bg.png", Graphics.PixmapFormat.RGB565);
-        Assets.ranks = g.newPixmap("ranks.png", Graphics.PixmapFormat.ARGB4444);
+        //Assets.map00Bg = g.newPixmap("map00_bg.png", Graphics.PixmapFormat.RGB565);
+        //Assets.ranks = g.newPixmap("ranks.png", Graphics.PixmapFormat.ARGB4444);
         Assets.energy = g.newPixmap("energy.png", Graphics.PixmapFormat.ARGB4444);
         Assets.aid= g.newPixmap("aid.png", Graphics.PixmapFormat.ARGB4444);
         Assets.numbers5_26_2 = g.newPixmap("numbers5_26_2.png", Graphics.PixmapFormat.ARGB4444);
         //Assets.map0_Bg = g.newBigPixmap("map00_bg.png");
         Assets.btArrowLeft = g.newPixmap("arrowBt.png", Graphics.PixmapFormat.ARGB4444, 0, 0, 30,60);
         Assets.btArrowRight = g.newPixmap("arrowBt.png", Graphics.PixmapFormat.ARGB4444, 30, 0, 30,60);
+
+        Assets.effect_66ccff_radial_00_ff = g.newPixmap("effect_66ccff_radial_00_ff.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.effect_ff0000_radial_00_ff = g.newPixmap("effect_ff0000_radial_00_ff.png", Graphics.PixmapFormat.ARGB4444);
+        Assets.effect_ffffff_radial_00_99 = g.newPixmap("effect_ffffff_radial_00_99.png", Graphics.PixmapFormat.ARGB4444);
         state = GAME_LOADED;
 
         Log.i("AssetsLoader","All Assets Loaded!");

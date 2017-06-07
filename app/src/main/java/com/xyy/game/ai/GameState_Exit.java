@@ -1,8 +1,10 @@
 package com.xyy.game.ai;
 
+import android.graphics.Paint;
+
 import com.xyy.game.ai.Screen.GameScreen;
 import com.xyy.game.ai.Screen.GameScreenOperation;
-import com.xyy.game.component.CircleButton;
+import com.xyy.game.component.SquareButton;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Input;
 
@@ -14,12 +16,12 @@ import java.util.List;
  */
 public class GameState_Exit extends GameState {
 
-    private CircleButton okBt, cancelBt;
+    private SquareButton okBt, cancelBt;
 
     public GameState_Exit(GameScreenOperation gameScreen, Stage stage) {
         super(gameScreen, stage);
-        okBt = new CircleButton(1280/2+160,720/2+80,80,0xFFF3318A,Assets.tickIco);
-        cancelBt = new CircleButton(1280/2-160,720/2+80,80,0xFF30547C,Assets.crossIco);
+        okBt = new SquareButton(1280/2+10,720/2+5,300,70,0x7F000000,"OK");
+        cancelBt = new SquareButton(1280/2-10-300,720/2+5,300,70,0x7F000000,"CANCEL");
     }
 
     @Override
@@ -52,7 +54,7 @@ public class GameState_Exit extends GameState {
         Graphics g = gameScreen.getGraphics();
         stage.present(g);
         g.fill(0x7F00050B);
-        g.drawText("您确定要退出么？",1280/2-180,720/2-40,0xFFFFFFFF,50);
+        g.drawText("Are you sure to quit?",1280/2,720/2-40,0xFFFFFFFF,50, Paint.Align.CENTER);
         okBt.present(g);
         cancelBt.present(g);
     }

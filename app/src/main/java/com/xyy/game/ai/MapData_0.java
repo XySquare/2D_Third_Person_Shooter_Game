@@ -2,22 +2,23 @@ package com.xyy.game.ai;
 
 import com.xyy.game.ai.Character.Character;
 import com.xyy.game.ai.Character.NPC.RootCharacter;
-import com.xyy.game.framework.Pixmap;
 import com.xyy.game.util.iPoint;
 
 /**
- * @see com.xyy.game.ai.WorldData
+ * @see MapData
  * Created by ${XYY} on ${2016/8/26}.
  */
-public final class WorldData_0 implements WorldData {
+public final class MapData_0 implements MapData {
+    public static final String uid = "map00";
+
     @Override
     public String getUid() {
-        return "map00";
+        return uid;
     }
 
     @Override
-    public Character getRootCharacter(Stage stage) {
-        return new RootCharacter(stage);
+    public Class<? extends Character> getRootCharacter() {
+        return RootCharacter.class;
     }
 
     @Override
@@ -73,8 +74,8 @@ public final class WorldData_0 implements WorldData {
     }
 
     @Override
-    public Pixmap getMapBackGround() {
-        return Assets.map00Bg;
+    public String getMapBackGround() {
+        return "map00_bg.png";
     }
 
     @Override

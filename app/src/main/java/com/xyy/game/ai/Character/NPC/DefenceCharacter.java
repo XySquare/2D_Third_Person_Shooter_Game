@@ -30,6 +30,7 @@ import java.util.ArrayList;
  * 2017/4/14
  */
 public final class DefenceCharacter extends Character implements NPC, Defender{
+    private static final String TAG = "DefenceCharacter";
 
     public static final Data sData = new Data() {
         public double[][] GetInputSet() {
@@ -121,7 +122,7 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
     private ArrayList<Character> hostileList;
 
     public DefenceCharacter(final Stage stage) {
-        super(stage);
+        super(stage,TAG);
         this.r = 85;
         setV(200);
         setMaxHp(100);
@@ -188,9 +189,9 @@ public final class DefenceCharacter extends Character implements NPC, Defender{
         findPathThread.start();
     }
 
-    public void initialize(@NonNull NPC parent, String name, int x, int y) {
+    public void initialize(@NonNull NPC parent, int x, int y) {
         this.parent = parent;
-        this.name = name;
+        //this.name = name;
         this.x = x;
         this.y = y;
         //Log.e(getName(),"initialize x/y = "+x+" / "+y);

@@ -1,7 +1,9 @@
 package com.xyy.game.ai;
 
+import android.graphics.Paint;
+
 import com.xyy.game.ai.Screen.GameScreenOperation;
-import com.xyy.game.component.CircleButton;
+import com.xyy.game.component.SquareButton;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Input;
 
@@ -13,19 +15,19 @@ import java.util.List;
  */
 public class GameState_Paused extends GameState {
 
-    private CircleButton resumeBt, exitBt, mainMenuBt;
+    private SquareButton resumeBt, exitBt, mainMenuBt;
 
     public GameState_Paused(GameScreenOperation gameScreen, Stage stage) {
         super(gameScreen, stage);
-        resumeBt = new CircleButton(1280/2,720/2,150,0xFFF3318A,Assets.playIco);
-        exitBt = new CircleButton(1280/2+250,720/2+150,80,0xFF30547C,Assets.exitIco);
-        mainMenuBt = new CircleButton(1280/2-250,720/2-150,80,0xFF30547C,Assets.mainMenuIco);
+        resumeBt = new SquareButton(1280/2 - 150,720/2 - 35,300,70,0x7F000000,"RESUME");
+        exitBt = new SquareButton(1280/2 - 150,720/2+75 - 35,300,70,0x7F000000,"QUIT");
+        mainMenuBt = new SquareButton(1280/2 - 150,720/2-75 - 35,300,70,0x7F000000,"MAIN MENU");
     }
 
     @Override
     public void enter() {
-        resumeBt.initialize(0);
-        mainMenuBt.initialize(0.1f);
+        mainMenuBt.initialize(0);
+        resumeBt.initialize(0.1f);
         exitBt.initialize(0.2f);
     }
 
@@ -61,6 +63,7 @@ public class GameState_Paused extends GameState {
         Graphics g = gameScreen.getGraphics();
         stage.present(g);
         g.fill(0x7F00050B);
+        //g.drawText("PAUSED",1280/2 - 150,720/2-75,0xFFFFFFFF,65, Paint.Align.CENTER);;
         resumeBt.present(g);
         exitBt.present(g);
         mainMenuBt.present(g);

@@ -1,5 +1,6 @@
 package com.xyy.game.ai;
 
+import android.graphics.Paint;
 import android.util.Log;
 
 import com.xyy.game.ai.Character.Player;
@@ -8,7 +9,7 @@ import com.xyy.game.ai.Screen.UserDate;
 import com.xyy.game.ai.Weapon.Weapon;
 import com.xyy.game.component.CircleButton;
 import com.xyy.game.component.ProcessingAnimation;
-import com.xyy.game.component.SquareButton;
+import com.xyy.game.component.SquareImageButton;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Input;
 import com.xyy.game.framework.Pixmap;
@@ -64,7 +65,7 @@ public class GameState_Running extends GameState {
         private Item mItem;
 
         public ItemCircleButton(int x, int y, Item item) {
-            super(x, y, 46, 0x6F000000, item.mIco);
+            super(x, y, 45, 0x6F000000, item.mIco);
             mItem = item;
             initialize(0);
         }
@@ -79,9 +80,11 @@ public class GameState_Running extends GameState {
         public void present(Graphics g) {
             super.present(g);
             //绘制数字
-            g.drawText(String.valueOf(mItem.getCounter()),x + 32,y+30+18,0xFFFFFFFF,24);
+            g.drawText(String.valueOf(mItem.getCounter()),x + 32,y+30+18,0xFFFF0000,24);
+            //绘制环形进度条背景
+            g.drawRing(x, y, currentR-10, 0, 360, 0x7F000000,6);
             //绘制环形进度条
-            g.drawRing(x, y, currentR-6, 360 - 360*mItem.getColldownProgress() -90, 360*mItem.getColldownProgress(), 0xFFFC560C,6);
+            g.drawRing(x, y, currentR-10, 360 - 360*mItem.getColldownProgress() -90, 360*mItem.getColldownProgress(), 0xFFFC560C,6);
         }
 
         @Override
@@ -93,8 +96,8 @@ public class GameState_Running extends GameState {
         }
     }
 
-    private final SquareButton prevWeaponBt;
-    private final SquareButton nextWeaponBt;
+    private final SquareImageButton prevWeaponBt;
+    private final SquareImageButton nextWeaponBt;
     private final ItemCircleButton mItemMedkit;
     private final ItemCircleButton mItemEngkit;
     //左摇杆
@@ -104,9 +107,9 @@ public class GameState_Running extends GameState {
     //HP,能量进度条
     private ProcessingAnimation hpBar, energyBar;
     //暂停按钮
-    private SquareButton pauseBt;
+    private SquareImageButton pauseBt;
     //玩家得分
-    //private int score;
+    private int score;
 
     //private byte[] numbers;
 
@@ -126,10 +129,10 @@ public class GameState_Running extends GameState {
         hpBar = new ProcessingAnimation(77,10,320,39,0xFFFFFFFF);
         energyBar = new ProcessingAnimation(77,51,320,17,0xFF66CCFF);
 
-        pauseBt = new SquareButton(12,9,60,60,0x6F000000,Assets.pauseIco);
+        pauseBt = new SquareImageButton(12,9,60,60,0x6F000000,Assets.pauseIco);
 
-        prevWeaponBt = new SquareButton(1280-280,9,50,80,0/*0x6F000000*/,Assets.btArrowLeft);
-        nextWeaponBt = new SquareButton(1280-50,9,50,80,0/*0x6F000000*/,Assets.btArrowRight);
+        prevWeaponBt = new SquareImageButton(1280-280,9,50,80,0/*0x6F000000*/,Assets.btArrowLeft);
+        nextWeaponBt = new SquareImageButton(1280-50,9,50,80,0/*0x6F000000*/,Assets.btArrowRight);
 
         //score = 0;
 
@@ -164,6 +167,15 @@ public class GameState_Running extends GameState {
         pauseBt.initialize(0);
         prevWeaponBt.initialize(0);
         nextWeaponBt.initialize(0);
+    }
+
+    @Override
+    public void exit() {
+        Log.i("Running","controller.reset()");
+        controller.reset();
+        atkCtrl.reset();
+        Player player = stage.getPlayer();
+        player.setDirection(0, 0);
     }
 
     @Override
@@ -230,11 +242,11 @@ public class GameState_Running extends GameState {
         //更新能量条
         energyBar.update(deltaTime,(float)player.getEnergy()/player.getMaxEnergy());
 
-        /*int s = stage.getScore();
+        int s = stage.getScore();
         if(s != score) {
             int ds = (int) ((s - score) * deltaTime * 10);
             this.score += ds==0 ? 1 : ds;
-        }*/
+        }
     }
 
     @Override
@@ -359,6 +371,8 @@ public class GameState_Running extends GameState {
             x/=10;
             g.drawPixmap(Assets.numbers5_26_2, 1280-400 + 40 + i*26, 40, num*26, 0, 26, 33);
         }*/
+        g.drawText("score",1280/2,26,0xFFFFFFFF,16, Paint.Align.CENTER);
+        g.drawText(String.valueOf(score), 1280/2, 26+30+4,0xFFFFFFFF,28, Paint.Align.CENTER);
     }
 
     @Override

@@ -5,10 +5,8 @@ import android.util.Log;
 import com.xyy.game.AStar.AStarFindPath;
 import com.xyy.game.ai.Character.Character;
 import com.xyy.game.ai.Screen.GameScreen;
-import com.xyy.game.ai.Screen.UserDate;
-import com.xyy.game.ai.Weapon.Weapon;
-import com.xyy.game.framework.FileIO;
 import com.xyy.game.framework.Game;
+import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Pixmap;
 import com.xyy.game.framework.Screen;
 import com.xyy.game.util.Line;
@@ -16,23 +14,21 @@ import com.xyy.game.util.iPoint;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Stack;
-import java.util.UUID;
 
 /**
  * 根据世界数据（WorldData）初始化世界，
  * 将在GameLoadingScreen中被执行
  * Created by ${XYY} on ${2016/9/25}.
  */
-public class WorldBuilder implements Runnable {
-    private WorldData worldData;
+public class MapBuilder implements Runnable {
+    private MapData mMapData;
     /**
      * 加载完成标准（false=正在加载）
      */
     private boolean built;
     /**
-     * 地图边集
+     * 地图边集, Debug Only
      */
     private Line[] lines;
     /**
@@ -40,28 +36,37 @@ public class WorldBuilder implements Runnable {
      */
     private Environment environment;
 
-    private FileIO fileIO;
+    //private FileIO fileIO;
 
     private Game game;
 
-    private Screen gameScreen;
+    private Map mMap = null;
 
-    public WorldBuilder(String worldUid, FileIO fileIO, Game game) {
+    private GameScreen gameScreen;
+
+    private boolean mIfBuildScreen = true;
+
+    public MapBuilder(String mapUid, Game game) {
+        this(mapUid,game,true);
+    }
+
+    public MapBuilder(String worldUid, Game game, boolean ifBuildScreen) {
         switch (worldUid) {
-            case "map00":
-                worldData = new WorldData_0();
+            case MapData_0.uid:
+                mMapData = new MapData_0();
                 break;
             default:
                 throw new RuntimeException("无法找到对应的地图数据！(uid = " + worldUid + ")");
         }
-        this.fileIO = fileIO;
+        //this.fileIO = game.getFileIO();
         this.game = game;
         built = false;
+        mIfBuildScreen = ifBuildScreen;
     }
 
     @Override
     public void run() {
-        initialization(worldData);
+        initialization(mMapData);
 
         Log.i("WorldBuilder","World initialized.");
 
@@ -75,7 +80,12 @@ public class WorldBuilder implements Runnable {
             weapon.loadPixmap(game.getGraphics(), Weapon.PixmapQuality.LOW);
         }*/
 
-        Log.i("WorldBuilder","UserDate initialized.");
+        //Log.i("WorldBuilder","UserDate initialized.");
+
+        final String uid = mMapData.getUid();
+        final Class<? extends Character> rootCharacter = mMapData.getRootCharacter();
+        final Pixmap background = game.getGraphics().newPixmap(mMapData.getMapBackGround(), Graphics.PixmapFormat.RGB565);
+        final iPoint playerStartPoint = mMapData.getPlayerStartPoint();
 
         while (AssetsLoader.getState()< AssetsLoader.GAME_LOADED){
             try {
@@ -85,20 +95,21 @@ public class WorldBuilder implements Runnable {
             }
         }
 
-        World newWorld = new World() {
+        mMap = new Map() {
+
             @Override
             public String getUid() {
-                return worldData.getUid();
+                return uid;
             }
 
             @Override
-            public Character getRootCharacter(Stage stage) {
-                return worldData.getRootCharacter(stage);
+            public Class<? extends Character> getRootCharacter() {
+                return rootCharacter;
             }
 
             @Override
             public Pixmap getMapBackGround() {
-                return worldData.getMapBackGround();
+                return background;
             }
 
             @Override
@@ -113,12 +124,13 @@ public class WorldBuilder implements Runnable {
 
             @Override
             public iPoint getPlayerStartPoint() {
-                return worldData.getPlayerStartPoint();
+                return playerStartPoint;
             }
 
         };
 
-        gameScreen = new GameScreen(game, newWorld);
+        if(mIfBuildScreen)
+            gameScreen = new GameScreen(game, mMap);
 
         built = true;
     }
@@ -132,6 +144,10 @@ public class WorldBuilder implements Runnable {
         return built;
     }
 
+    public Map getMap() {
+        return mMap;
+    }
+
     /**
      * 获取构建完成的世界，
      * 请不要在世界未构建完成前调用
@@ -140,17 +156,17 @@ public class WorldBuilder implements Runnable {
         return gameScreen;
     }
 
-    private void initialization(WorldData worldData) {
+    private void initialization(MapData mapData) {
 
-        GameDataManager.load(worldData.getDataToLoad(), fileIO);
+        GameDataManager.load(mapData.getDataToLoad(), game.getFileIO());
 
         //BuffManager.setBuffs(worldData.getBuffList());
 
         //区块宽度(实际处理时将以3*3个区块为一个判断区域)
-        int blockWidth = worldData.getBlockWidth();
+        int blockWidth = mapData.getBlockWidth();
 
         //地图顶点
-        iPoint[] points = worldData.getMapPoints();
+        iPoint[] points = mapData.getMapPoints();
 
         //搜索地图边界
         int maxX = 0;
@@ -168,7 +184,7 @@ public class WorldBuilder implements Runnable {
         minX -= blockWidth;
         minY -= blockWidth;
 
-        Log.e("WorldBuilder","X/Y = "+minX+" / "+minY);
+        Log.i("WorldBuilder","X/Y = "+minX+" / "+minY);
 
         //地图顶点预处理
         for (iPoint p : points) {
@@ -194,7 +210,7 @@ public class WorldBuilder implements Runnable {
         Line[][] blocksList = initializeBlocksList(lines, blockWidth, blockXNum, blockYNum);
 
         //初始化地图块用于寻路
-        int seed = worldData.getPlayerStartPoint().x / blockWidth * 2 + worldData.getPlayerStartPoint().y / blockWidth * 2 * blockXNum * 2;
+        int seed = mapData.getPlayerStartPoint().x / blockWidth * 2 + mapData.getPlayerStartPoint().y / blockWidth * 2 * blockXNum * 2;
         byte[] mapForFingPath = initializeMapForFindPath(lines, blockWidth / 2, blockXNum * 2, blockYNum * 2,seed);
 
         //构建环境

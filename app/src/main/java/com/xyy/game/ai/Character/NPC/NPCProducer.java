@@ -14,6 +14,8 @@ import com.xyy.game.framework.Graphics;
  * Created by ${XYY} on ${2016/8/24}.
  */
 public final class NPCProducer extends Character implements NPC {
+    private static final String TAG = "NPCProducer";
+
     /**
      * 基因池
      */
@@ -27,7 +29,7 @@ public final class NPCProducer extends Character implements NPC {
     private double[] weights;
 
     public NPCProducer(Stage stage) {
-        super(stage);
+        super(stage,TAG);
 
         //初始化基因池
         genPool = GameDataManager.getGenPool("Data.dat");
@@ -39,7 +41,7 @@ public final class NPCProducer extends Character implements NPC {
 
     public void initialize(@NonNull NPC parent, String name, int x, int y) {
         this.parent = parent;
-        this.name = name;
+        //this.name = name;
         this.x = x;
         this.y = y;
         setHp(500);
@@ -100,21 +102,21 @@ public final class NPCProducer extends Character implements NPC {
             double rand = Math.random();
             if (rand > 0.66) {
                 SimpleCharacter simpleCharacter = new SimpleCharacter(stage);//暂时没使用回收池
-                simpleCharacter.initialize(this, "SimpleCharacter" + childrenCounter, (int) x, (int) y);
+                simpleCharacter.initialize(this, (int) x, (int) y);
                 double[] gen = genPool.get();
                 simpleCharacter.putWeights(gen);
                 stage.addHostile(simpleCharacter);
                 stage.addToTrackList(simpleCharacter);
             } else if (rand > 0.33){
                 DefenceCharacter defenceCharacter = new DefenceCharacter(stage);
-                defenceCharacter.initialize(this, "DefenceCharacter" + childrenCounter, (int) x, (int) y);
+                defenceCharacter.initialize(this, (int) x, (int) y);
                 defenceCharacter.putWeights(genPool_Defence.get());
        //         defenceCharacter.putWeights(weights);
                 stage.addHostile(defenceCharacter);
                 stage.addToTrackList(defenceCharacter);
             } else {
                 AssistCharacter assistCharacter = new AssistCharacter(stage);
-                assistCharacter.initialize(this, "AssistCharacter" + childrenCounter, (int)x, (int)y);
+                assistCharacter.initialize(this, (int)x, (int)y);
                 assistCharacter.putWeights(weights);
                 stage.addHostile(assistCharacter);
                 stage.addToTrackList(assistCharacter);

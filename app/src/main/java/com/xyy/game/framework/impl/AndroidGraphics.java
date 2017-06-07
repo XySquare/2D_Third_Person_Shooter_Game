@@ -9,7 +9,6 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PaintFlagsDrawFilter;
 import android.graphics.Path;
-import android.graphics.RadialGradient;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Shader;
@@ -313,7 +312,7 @@ public final class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawText(String text, int x, int y, int color, int size) {
+    public void drawText(String text, float x, float y, int color, float size) {
         paint.setColor(color);
         paint.setTextSize(size);
         paint.setStyle(Paint.Style.FILL);
@@ -322,7 +321,7 @@ public final class AndroidGraphics implements Graphics {
     }
 
     @Override
-    public void drawText(String text, int x, int y, int color, int size, Paint.Align textAlign) {
+    public void drawText(String text, float x, float y, int color, float size, Paint.Align textAlign) {
         paint.setColor(color);
         paint.setTextSize(size);
         paint.setStyle(Paint.Style.FILL);

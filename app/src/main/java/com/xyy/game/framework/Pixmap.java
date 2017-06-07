@@ -7,10 +7,9 @@ import static com.xyy.game.framework.Graphics.PixmapFormat;
  * Created by ${XYY} on ${2015/11/20}.
  */
 public interface Pixmap {
-    @Deprecated
+
     public int getWidth();
 
-    @Deprecated
     public int getHeight();
 
     /**

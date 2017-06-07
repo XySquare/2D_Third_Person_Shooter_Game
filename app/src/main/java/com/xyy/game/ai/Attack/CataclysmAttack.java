@@ -70,7 +70,7 @@ public final class CataclysmAttack extends Attack {
                 +(y-character.getY())*(y-character.getY()))
                 <= (radius*timer+character.getR())*(radius*timer+character.getR());
         if(res){
-            character.setHp(0);//造成伤害
+            character.accessHp(character.getMaxHp());//造成伤害
         }
         return res;
     }

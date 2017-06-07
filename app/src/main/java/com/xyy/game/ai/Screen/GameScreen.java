@@ -1,16 +1,17 @@
 package com.xyy.game.ai.Screen;
 
-import com.xyy.game.ai.Character.NPC.RootCharacter;
 import com.xyy.game.ai.GameDataManager;
 import com.xyy.game.ai.GameState;
 import com.xyy.game.ai.GameStateManager;
 import com.xyy.game.ai.GameState_Exit;
 import com.xyy.game.ai.GameState_FirstIn;
 import com.xyy.game.ai.GameState_GameOver;
+import com.xyy.game.ai.GameState_MapSwitching;
 import com.xyy.game.ai.GameState_Paused;
 import com.xyy.game.ai.GameState_Running;
+import com.xyy.game.ai.MapBuilder;
 import com.xyy.game.ai.Stage;
-import com.xyy.game.ai.World;
+import com.xyy.game.ai.Map;
 import com.xyy.game.framework.Game;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Input;
@@ -27,17 +28,30 @@ public class GameScreen extends Screen implements GameScreenOperation, GameState
 
     private String worldUid;
 
-    public GameScreen(Game game, World world) {
+    private Stage stage;
+
+    private MapBuilder mMapBuilder;
+
+    public GameScreen(Game game, Map map) {
         super(game);
 
-        worldUid = world.getUid();
+        worldUid = map.getUid();
 
-        Stage stage = new Stage(world, this, game.getGraphics());
+        stage = new Stage(map, this, game.getGraphics());
 
         gameStates = new GameState[]{new GameState_Running(this, stage),
                 new GameState_Paused(this, stage),
                 new GameState_Exit(this, stage),
                 new GameState_GameOver(this, stage)};
+
+        //设置First_In为初始状态，结束后等待垃圾回收
+        currentState = new GameState_FirstIn(this, stage);
+    }
+
+    public void initialize(Map map){
+        worldUid = map.getUid();
+
+        stage.initialize(map);
 
         //设置First_In为初始状态，结束后等待垃圾回收
         currentState = new GameState_FirstIn(this, stage);
@@ -50,7 +64,7 @@ public class GameScreen extends Screen implements GameScreenOperation, GameState
      */
     @Override
     public void setState(char stateIndex) {
-        //currentState.exit();
+        currentState.exit();
         currentState = gameStates[stateIndex];
         currentState.enter();
     }
@@ -82,6 +96,26 @@ public class GameScreen extends Screen implements GameScreenOperation, GameState
     @Override
     public void toMapsSelectingScreen() {
         game.setScreen(new MapsSelectingScreen(game));
+    }
+
+    public void switchMap(String mapUid){
+        currentState.exit();
+        currentState = new GameState_MapSwitching(this,stage,mapUid);
+        //currentState.enter();
+
+        mMapBuilder = new MapBuilder(mapUid,game,false);
+        new Thread(mMapBuilder).start();
+    }
+
+    @Override
+    public boolean isMapBuilt() {
+        Map map = mMapBuilder.getMap();
+        boolean res = map != null;
+        if(res){
+            mMapBuilder = null;
+            initialize(map);
+        }
+        return res;
     }
 
     @Override

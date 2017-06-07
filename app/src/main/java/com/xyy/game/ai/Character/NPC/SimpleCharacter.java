@@ -29,6 +29,8 @@ import java.util.ArrayList;
  * Created by ${XYY} on ${2016/8/3}.
  */
 public final class SimpleCharacter extends Character implements NPC{
+    private static final String TAG = "SimpleCharacter";
+
     /**
      * x/y方向上的速度（px/s）
      */
@@ -100,7 +102,7 @@ public final class SimpleCharacter extends Character implements NPC{
     private static final int safeDistance = 700;
 
     public SimpleCharacter(final Stage stage) {
-        super(stage);
+        super(stage,TAG);
         this.r = 65;
         setV(200);
         setMaxHp(20);
@@ -167,9 +169,9 @@ public final class SimpleCharacter extends Character implements NPC{
         findPathThread.start();
     }
 
-    public void initialize(@NonNull NPC parent, String name, int x, int y) {
+    public void initialize(@NonNull NPC parent,int x, int y) {
         this.parent = parent;
-        this.name = name;
+        //this.name = name;
         this.x = x;
         this.y = y;
         //Log.e(getName(),"initialize x/y = "+x+" / "+y);
@@ -384,11 +386,31 @@ public final class SimpleCharacter extends Character implements NPC{
     @Override
     public void present(Graphics g, float offsetX, float offsetY) {
         g.drawPixmapDegree(Assets.hostile, this.x - offsetX, this.y - offsetY, rotation);
-        int order = rank.indexOf(this);
+        /*int order = rank.indexOf(this);
         if(order>=0){
             //g.drawText((order+1)+"th_"+(int)fitness,(int)(this.x - offsetX), (int) (this.y - offsetY),0xFFFFFFFF,16);
             g.drawPixmap(Assets.ranks,(int)(this.x-47- offsetX),(int)(this.y-47- offsetY),24*order,0,24,28);
-        }
+        }*/
+        /**
+         * 绘制Buff
+         */
+        /*final int BUFF_X = (int)getX();
+        final int BUFF_Y = (int)getY();
+        ArrayList<BuffManager.BuffRecord> buffList = getBuffList();
+        int len = buffList.size();
+        for(int i=0;i<len;i++){
+            BuffManager.BuffRecord buffRecord = buffList.get(i);
+            //绘制环形进度条的半透明背景
+            //g.drawRing(BUFF_X+30+i*80, 40, 33, 0, 3600, 0x7FFFFFFF,6);
+            //绘制图标
+            g.drawPixmap(Assets.ico, (int) (BUFF_X+i*80-offsetX), (int) (BUFF_Y+9-offsetY),60*buffRecord.getBuffIco(),0,60,60);
+            //当叠加层数大于一时才绘制数字
+            int counter = buffRecord.getCounter();
+            if(counter>1)
+                g.drawText(String.valueOf(counter), (int) (BUFF_X + 35+i*80-offsetX), (int) (BUFF_Y+60-offsetY),0xFFFFFFFF,24);
+            //绘制环形进度条
+            g.drawRing(BUFF_X + 30+i*80-offsetX, BUFF_Y+39-offsetY, 25, 360 - 360*buffRecord.getRemainTimeRatio() -90, 360*buffRecord.getRemainTimeRatio(), 0xFFFFFFFF,4);
+        }*/
     }
 
     @Override
@@ -418,6 +440,7 @@ public final class SimpleCharacter extends Character implements NPC{
             rank.remove(i);
             shouldAddBuff = true;
         }else
+            //TODO: 加分
             stage.accessScore(10);
         //被销毁时产生范围攻击
         GeneralCircleAttack atkObj = new GeneralCircleAttack(stage);

@@ -48,6 +48,8 @@ public class Screen_MainMenu_Repository extends Screen {
     //private Weapon mPurchasedWeapon = null;
     private boolean mUpgradeButtonPressed = false;
 
+    private float mTipsAlpha = 0;
+
     //列表项的宽度度
     private final int ITEM_WIDTH = 437;
     private final int ITEM_HEIGHT = 242;
@@ -166,6 +168,11 @@ public class Screen_MainMenu_Repository extends Screen {
 
     @Override
     public void update(float deltaTime) {
+        if(mTipsAlpha>0){
+            mTipsAlpha -= 0xFF/mTipsAlpha*deltaTime*40;
+            if(mTipsAlpha<0)
+                mTipsAlpha=0;
+        }
         List<Input.Touch> touchEvents = game.getInput().getTouchEvents();
         /**
          * 处理惯性运动
@@ -318,6 +325,9 @@ public class Screen_MainMenu_Repository extends Screen {
                                         mSelected[index] = true;
                                         mCurrentlyEquippedWeapons.add(mWeapons.get(index).mUUID);
                                     }
+                                    else{
+                                        mTipsAlpha = 0xFF;
+                                    }
                                 }
                             }
                         }
@@ -350,6 +360,7 @@ public class Screen_MainMenu_Repository extends Screen {
         //"Store"文字
         g.drawText("[REPOSITORY]", 77, 53, 0xFFFFFFFF, 24);
         //货币
+        g.drawText("CREDIT",1280-200-8,40,0xFFFFF200,30, Paint.Align.RIGHT);
         g.drawText(String.valueOf(UserDate.sCurrency),1280-200,40,0xFFFFFFFF,30);
 
         g.drawText("EQUIPPED "+mCurrentlyEquippedWeapons.size()+"/3", 8, 68 + 24 + 16, 0xFFFFFFFF, 24);
@@ -396,55 +407,8 @@ public class Screen_MainMenu_Repository extends Screen {
         g.drawPixmap(Assets.main_menu_bottom_bar_button,offsetX+218,720-84,0,0,218,84);
         g.drawText(bottom_bar_text[1],offsetX+218+109,720-84+36+19,0xFFFFFFFF,26, Paint.Align.CENTER);
 
-        /**
-         * 首先，先绘制未被按下的按钮，直至被按下的按钮之前
-         * 接着，绘制被按下的按钮，
-         * 最后，绘制剩下的未被按下的按钮
-         */
-        //if(dragAble) {
-        /*for (i = 0; i < relativeIndex; i++) {
-            int indexX = i / ROW_SCREEN;
-            int indexY = i - indexX * ROW_SCREEN;
-            int x = listStartX + indexX * ITEM_WIDTH;
-            int y = LIST_Y + indexY * ITEM_HEIGHT;
-            item_list_present(g, x, y);
-            //g.drawRect(listStartX + indexX * ITEM_WIDTH, LIST_Y + indexY * ITEM_HEIGHT, ITEM_WIDTH, ITEM_HEIGHT, 0x6F000000);
-            //g.drawText("AAAA" + (startIndex + i), listStartX + indexX * ITEM_WIDTH, LIST_Y + indexY * ITEM_HEIGHT, 0xFF000000, 32);
-        }
-        if (i < COL_SCREEN * ROW_SCREEN) {
-            int indexX = i / ROW_SCREEN;
-            int indexY = i - indexX * ROW_SCREEN;
-            int x = listStartX + indexX * ITEM_WIDTH;
-            int y = LIST_Y + indexY * ITEM_HEIGHT;
-            item_list_present(g, x, y);
-            i++;
-            for (; i < COL_SCREEN * ROW_SCREEN; i++) {
-                indexX = i / ROW_SCREEN;
-                indexY = i - indexX * ROW_SCREEN;
-                x = listStartX + indexX * ITEM_WIDTH;
-                y = LIST_Y + indexY * ITEM_HEIGHT;
-                item_list_present(g, x, y);
-            }
-        }*/
-        //}
-        /*else {
-            for (i = 0; i < relativeIndexX; i++) {
-                g.drawPixmap(Assets.itemListBg2, LIST_Y, listStartX + i * ITEM_WIDTH,0,0,600,120);
-                gameScreen.drawNum5_52(String.valueOf(i + 1), TXT_X, listStartX + i * ITEM_WIDTH + 28);
-                g.drawPixmap(Assets.txt_F, TXT_X+100, listStartX + i * ITEM_WIDTH + 28);
-            }
-            if(i < mColumnNum) {
-                g.drawPixmap(Assets.itemListBg2, LIST_Y, listStartX + i * ITEM_WIDTH,600,0,600,120);
-                gameScreen.drawNum5_52(String.valueOf(i + 1), TXT_X, listStartX + i * ITEM_WIDTH + 28);
-                g.drawPixmap(Assets.txt_F, TXT_X+100, listStartX + i * ITEM_WIDTH + 28);
-                i++;
-                for (; i < mColumnNum; i++) {
-                    g.drawPixmap(Assets.itemListBg2, LIST_Y, listStartX + i * ITEM_WIDTH,0,0,600,120);
-                    gameScreen.drawNum5_52(String.valueOf(i + 1), TXT_X, listStartX + i * ITEM_WIDTH + 28);
-                    g.drawPixmap(Assets.txt_F, TXT_X+100, listStartX + i * ITEM_WIDTH + 28);
-                }
-            }
-        }*/
+        g.drawRect(1280/2-300,720/2-37,600,70,(int)(mTipsAlpha)<<24 | 0x000000);
+        g.drawText("UP TO 3 WEAPONS CAN BE EQUIPPED",1280/2,720/2+35-21,(int)(mTipsAlpha)<<24 | 0xFFFFFF,35, Paint.Align.CENTER);
     }
 
     private void item_list_present(Graphics g, int x, int y, int position, boolean pressed) {

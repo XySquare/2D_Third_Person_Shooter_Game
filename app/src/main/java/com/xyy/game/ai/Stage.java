@@ -18,6 +18,8 @@ import com.xyy.game.util.IntArrayList;
 import com.xyy.game.util.Line;
 import com.xyy.game.util.iPoint;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -141,17 +143,25 @@ public class Stage {
      * Stage在GameScreen中被实例化，
      * 随后被传递给各个GameState
      */
-    public Stage(World world, GameStateManager gameStateManager, Graphics g) {
+    public Stage(Map map, GameStateManager gameStateManager, Graphics g) {
         this.gameStateManager = gameStateManager;
 
         //获取根角色
-        rootCharacter = world.getRootCharacter(this);
+        Class<? extends Character> clazz = map.getRootCharacter();
+        try {
+            Constructor<? extends Character> constructor = clazz.getConstructor(Stage.class);
+            rootCharacter = constructor.newInstance(this);
+        } catch (NoSuchMethodException e) {
+        } catch (IllegalAccessException e) {
+        } catch (InstantiationException e) {
+        } catch (InvocationTargetException e) {
+        }
 
         //获取地图背景
-        mapBackGround = world.getMapBackGround();
+        mapBackGround = map.getMapBackGround();
 
         //获取环境
-        environment = world.getEnvironment();
+        environment = map.getEnvironment();
         environment.addPlayerAtkList(playerAtkList);
         environment.setHostileList(hostileList);
 
@@ -162,8 +172,8 @@ public class Stage {
         player = new Player(this);
 
         //设置玩家初始坐标
-        iPoint startPoint = world.getPlayerStartPoint();
-        player.initialize((NPC) rootCharacter, "Player", startPoint.x, startPoint.y);
+        iPoint startPoint = map.getPlayerStartPoint();
+        player.initialize((NPC) rootCharacter, startPoint.x, startPoint.y);
 
         //添加玩家出现特效
         Effect e = new PlayerShowEffect();
@@ -200,6 +210,52 @@ public class Stage {
 
         //new Thread(backGroundLoader).start();
 
+    }
+
+    public void initialize(Map map){
+        //释放线程
+        int len = hostileList.size();
+        for (int i = 0; i < len; i++)
+            hostileList.get(i).setHp(0);
+        len = hostileListTemp.size();
+        for (int i = 0; i < len; i++)
+            hostileListTemp.get(i).setHp(0);
+
+        //清空所有攻击对象/角色
+        playerAtkList.clear();
+        playerAtkListTemp.clear();
+        hostileAtkList.clear();
+        hostileAtkListTemp.clear();
+        hostileList.clear();
+        hostileListTemp.clear();
+        effectList.clear();
+        effectListTemp.clear();
+
+        //获取根角色
+        Class<? extends Character> clazz = map.getRootCharacter();
+        try {
+            Constructor<? extends Character> constructor = clazz.getConstructor(Stage.class);
+            rootCharacter = constructor.newInstance(this);
+        } catch (NoSuchMethodException e) {
+        } catch (IllegalAccessException e) {
+        } catch (InstantiationException e) {
+        } catch (InvocationTargetException e) {
+        }
+
+        //获取地图背景
+        mapBackGround = map.getMapBackGround();
+
+        //获取环境
+        environment = map.getEnvironment();
+        environment.addPlayerAtkList(playerAtkList);
+        environment.setHostileList(hostileList);
+
+        //获取地图边
+        //lines = world.getLines();
+
+        //设置玩家初始坐标
+        iPoint startPoint = map.getPlayerStartPoint();
+        player.initialize((NPC) rootCharacter, startPoint.x, startPoint.y);
     }
 
     //private static final int BLOCK_WIDTH = 1280/3 + 1;
@@ -470,28 +526,29 @@ public class Stage {
     /**
      * 切换武器
      */
-    private void setCurrentWeaponIndex(int index) {
+    private Weapon setCurrentWeaponIndex(int index) {
         index = (index + mWeapons.size()) % mWeapons.size();
-        if (index == mCurrentWeaponIndex) return;
+        Weapon weapon = mWeapons.get(index);
+        if (index == mCurrentWeaponIndex) return weapon;
         mCurrentWeaponIndex = index;
         mIsInCD = false;
         mAtkDelayTimer = 0;
+        player.setWeaponAtk(weapon.getDamage());
+        return weapon;
     }
 
     /**
      * 切换至下一个武器
      */
     public Weapon nextWeapon() {
-        setCurrentWeaponIndex(++mCurrentWeaponIndex);
-        return mWeapons.get(mCurrentWeaponIndex);
+        return setCurrentWeaponIndex(++mCurrentWeaponIndex);
     }
 
     /**
      * 切换至上一个武器
      */
     public Weapon prevWeapon() {
-        setCurrentWeaponIndex(--mCurrentWeaponIndex);
-        return mWeapons.get(mCurrentWeaponIndex);
+        return setCurrentWeaponIndex(--mCurrentWeaponIndex);
     }
 
     public Weapon getCurrentWeapon() {
@@ -608,6 +665,14 @@ public class Stage {
      */
     public void setState(char stateIndex) {
         gameStateManager.setState(stateIndex);
+    }
+
+    /**
+     * 切换地图
+     * @param mapUid
+     */
+    public void switchMap(String mapUid){
+        gameStateManager.switchMap(mapUid);
     }
 
     /**

@@ -144,16 +144,15 @@ public interface Graphics {
 
     /**
      * 绘制文字
-     *
-     * @param text  文本字符串
+     *  @param text  文本字符串
      * @param x     X坐标
      * @param y     Y坐标
      * @param color 颜色
      * @param size  字号
      */
-    void drawText(String text, int x, int y, int color, int size);
+    void drawText(String text, float x, float y, int color, float size);
 
-    void drawText(String text, int x, int y, int color, int size, Paint.Align textAlign);
+    void drawText(String text, float x, float y, int color, float size, Paint.Align textAlign);
 
     void drawSquareRadians(float x, float y, int r, int color, float radians);
 

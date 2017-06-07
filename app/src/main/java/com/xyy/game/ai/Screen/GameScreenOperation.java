@@ -1,5 +1,7 @@
 package com.xyy.game.ai.Screen;
 
+import com.xyy.game.ai.Map;
+import com.xyy.game.ai.MapBuilder;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Input;
 
@@ -24,4 +26,6 @@ public interface GameScreenOperation {
     void reLoad();
 
     void toMapsSelectingScreen();
+
+    boolean isMapBuilt();
 }

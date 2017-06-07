@@ -2,10 +2,8 @@ package com.xyy.game.ai.Screen;
 
 import android.util.Log;
 
-import com.xyy.game.ai.Assets;
-import com.xyy.game.ai.AssetsLoader;
 import com.xyy.game.component.LoadingAnimation;
-import com.xyy.game.ai.WorldBuilder;
+import com.xyy.game.ai.MapBuilder;
 import com.xyy.game.framework.Game;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Screen;
@@ -16,11 +14,11 @@ import com.xyy.game.framework.Screen;
  */
 public class GameLoadingScreen extends Screen {
 
-    private WorldBuilder worldBuilder;
+    private MapBuilder mMapBuilder;
 
     private LoadingAnimation loadingAnimation;
 
-    private Thread loaderThread;
+    //private Thread loaderThread;
 
     public GameLoadingScreen(Game game, String worldUid) {
         super(game);
@@ -31,8 +29,9 @@ public class GameLoadingScreen extends Screen {
         /**
          * 创建新线程构建世界
          */
-        worldBuilder = new WorldBuilder(worldUid, game.getFileIO(),game);
-        loaderThread = new Thread(worldBuilder);
+        mMapBuilder = new MapBuilder(worldUid,game);
+        new Thread(mMapBuilder).start();
+        Log.i("GameLoadingScreen","LoaderThread Started!");
 
     }
 
@@ -41,8 +40,8 @@ public class GameLoadingScreen extends Screen {
 
         loadingAnimation.update(deltaTime);
 
-        if(worldBuilder.isBuilt()) {
-            Screen screen = worldBuilder.getGameScreen();
+        if(mMapBuilder.isBuilt()) {
+            Screen screen = mMapBuilder.getGameScreen();
             //载入完成，跳转到游戏界面
             game.setScreen(screen);
         }
@@ -67,8 +66,8 @@ public class GameLoadingScreen extends Screen {
 
     @Override
     public void resume() {
-        loaderThread.start();
-        Log.i("GameLoadingScreen","LoaderThread Started!");
+        //提示系统,这时是垃圾回收的好时机
+        System.gc();
     }
 
     @Override

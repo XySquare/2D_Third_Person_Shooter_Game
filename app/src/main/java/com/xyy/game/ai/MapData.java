@@ -9,7 +9,7 @@ import com.xyy.game.util.iPoint;
  * 数据将被传递给WorldBuilder
  * Created by ${XYY} on ${2016/8/26}.
  */
-public interface WorldData {
+public interface MapData {
     /**
      * @return 地图唯一标识符
      */
@@ -17,7 +17,7 @@ public interface WorldData {
     /**
      * @return 根角色
      */
-    Character getRootCharacter(Stage stage);
+    Class<? extends Character> getRootCharacter();
 
     /**
      * @return 地图点集
@@ -32,7 +32,7 @@ public interface WorldData {
     /**
      * @return 地图背景
      */
-    Pixmap getMapBackGround();
+    String getMapBackGround();
 
     /**
      * @return 需加载的权重

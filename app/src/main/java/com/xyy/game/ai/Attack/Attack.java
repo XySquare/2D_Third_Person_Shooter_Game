@@ -13,7 +13,7 @@ public abstract class Attack extends GameObject implements AtkInfo{
     //产生该对象的父角色
     protected Character parent;
 
-    //同类攻击的唯一标志，垃圾回收标志
+    //同类攻击的唯一标志，垃圾回收标志……现在没用了
     protected final char flag;
 
     //标记是否将该对象移除(Default = false)

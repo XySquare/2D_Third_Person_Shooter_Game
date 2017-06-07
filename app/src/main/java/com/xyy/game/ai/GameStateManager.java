@@ -7,4 +7,6 @@ public interface GameStateManager {
 
     void setState(char stateIndex);
 
+    public void switchMap(String mapUid);
+
 }

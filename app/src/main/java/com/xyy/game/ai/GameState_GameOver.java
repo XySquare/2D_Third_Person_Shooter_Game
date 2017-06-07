@@ -1,7 +1,10 @@
 package com.xyy.game.ai;
 
+import android.graphics.Paint;
+
 import com.xyy.game.ai.Screen.GameScreenOperation;
-import com.xyy.game.component.CircleButton;
+import com.xyy.game.ai.Screen.UserDate;
+import com.xyy.game.component.SquareButton;
 import com.xyy.game.framework.Graphics;
 import com.xyy.game.framework.Input;
 
@@ -15,12 +18,14 @@ public class GameState_GameOver extends GameState {
 
     private float timer;
 
-    private CircleButton retryBt, mainmenuBt;
+    private SquareButton retryBt, mainmenuBt;
+
+    private String mStringEarnCredit;
 
     public GameState_GameOver(GameScreenOperation gameScreen, Stage stage) {
         super(gameScreen, stage);
-        mainmenuBt = new CircleButton(1280/2-160,720/2+80,80,0xFF30547C,Assets.mainMenuIco);
-        retryBt = new CircleButton(1280/2+160,720/2+80,80,0xFFF3318A,Assets.retryIco);
+        mainmenuBt = new SquareButton(1280/2-10-300,720/2+5+70,300,70,0x7F000000,"MAIN MENU");
+        retryBt = new SquareButton(1280/2+10,720/2+5+70,300,70,0x7F000000,"RETRY");
     }
 
     @Override
@@ -28,6 +33,13 @@ public class GameState_GameOver extends GameState {
         timer = 2;
         retryBt.initialize(2.1f);
         mainmenuBt.initialize(2);
+
+        int score = stage.getScore();
+        int credit = (int) (score * 0.01);
+        mStringEarnCredit = "EARN CREDIT: "+credit;
+
+        //TODO: Save Data
+        UserDate.sCurrency += credit;
     }
 
     @Override
@@ -60,7 +72,9 @@ public class GameState_GameOver extends GameState {
         Graphics g = gameScreen.getGraphics();
         stage.present(g);
         g.fill(0x7F00050B);
-        g.drawText("MISSION FAILED",1280/2-180,720/2-40,0xFFFFFFFF,50);
+        g.drawText("MISSION FAILED",1280/2,720/2-40-50-20,0xFFFFFFFF,50, Paint.Align.CENTER);
+        g.drawText("SCORE: "+stage.getScore(),1280/2,720/2-40,0xFFFFFFFF,50, Paint.Align.CENTER);
+        g.drawText(mStringEarnCredit,1280/2,720/2-40+20+50,0xFFFFFFFF,50, Paint.Align.CENTER);
         retryBt.present(g);
         mainmenuBt.present(g);
     }
